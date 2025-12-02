@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Loading...</title>
+    <meta charset="utf-8">
+    <style>body { font-family: sans-serif; }</style>
+</head>
+<body>
+
+<script>
+    // This fetches the file named 'data.txt' from the same folder
+    fetch('data.txt')
+        .then(response => response.text())
+        .then(base64Text => {
+            // Decode the Base64 string
+            const decodedHtml = atob(base64Text);
+
+            // Wipe the page and write the real code
+            document.open();
+            document.write(decodedHtml);
+            document.close();
+        })
+        .catch(err => {
+            console.error(err);
+            document.body.innerHTML = "Error loading content.";
+        });
+</script>
+
+</body>
+</html>
