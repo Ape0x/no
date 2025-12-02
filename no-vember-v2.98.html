@@ -1,0 +1,2258 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>No-vember: The Power of Saying No</title>
+    
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        /* --- CORE THEME VARIABLES --- */
+        :root {
+            --bg-deep: #0f1020;
+            --bg-panel: #1a1b2e;
+            --bg-card: #252640;
+            --accent-peach: #FF9F68;
+            --accent-gold: #FFD700; /* Brighter Gold */
+            --accent-teal: #4FD1C5;
+            --accent-lavender: #A78BFA;
+            --accent-red: #FF6B6B;
+            --accent-green-led: #00FF41; /* Bright Green LED */
+            --accent-green-off: #003308; /* Dull Dark Green for Off State */
+            --text-main: #FFFFFF;
+            --text-muted: #9CA3AF;
+            --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-stack);
+            background-color: var(--bg-deep);
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(255, 159, 104, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(79, 209, 197, 0.1) 0%, transparent 50%);
+            color: var(--text-main);
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* --- TYPOGRAPHY & HEADER --- */
+        h1 {
+            color: #fff;
+            font-weight: 800;
+            font-size: clamp(2rem, 5vw, 3rem);
+            margin-bottom: 1.5rem;
+            letter-spacing: -1px;
+            text-transform: uppercase;
+            text-align: center;
+            width: 100%;
+            animation: title-cycle 6s infinite ease-in-out;
+        }
+        
+        @keyframes title-cycle {
+            0%, 100% { color: #ffffff; text-shadow: 0 0 20px rgba(255, 255, 255, 0.1); }
+            50% { color: var(--accent-peach); text-shadow: 0 0 30px rgba(255, 159, 104, 0.4); }
+        }
+
+        .quote-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-style: italic;
+            color: var(--accent-lavender);
+            width: fit-content;
+            margin: 0 auto 40px auto;
+            border: 1px solid var(--accent-lavender);
+            font-size: 1.1rem;
+            text-align: center;
+            white-space: normal;
+            line-height: 1.4;
+            max-width: 90%;
+            animation: mystic-border-pulse 4s infinite alternate;
+        }
+        .quote-box a { 
+            color: inherit; 
+            text-decoration: none; 
+            font-weight: bold; 
+            border-bottom: 1px dotted currentColor; 
+            transition: color 0.3s; 
+            
+            /* UPDATED: Text Glow only, no border/outline */
+            padding: 0 5px;
+            border: none;
+            text-shadow: 0 0 10px var(--accent-gold), 0 0 20px var(--accent-teal);
+            animation: text-glow-pulse 3s infinite alternate;
+        }
+        .quote-box a:hover { color: var(--accent-teal); }
+
+        /* --- DASHBOARD LAYOUT --- */
+        .dashboard-container {
+            max-width: 1200px; width: 100%; margin: 0 auto;
+            display: grid; grid-template-columns: 2fr 1.2fr; gap: 24px;
+            align-items: stretch;
+        }
+
+        @media (max-width: 900px) { .dashboard-container { grid-template-columns: 1fr; } }
+
+        .panel {
+            background: var(--bg-panel);
+            border: var(--glass-border);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            position: relative; overflow: hidden;
+            display: flex; flex-direction: column;
+            transition: box-shadow 0.3s, border-color 0.3s;
+        }
+        
+        .panel.highlight-attention {
+            box-shadow: 0 0 40px rgba(167, 139, 250, 0.6);
+            border-color: var(--accent-lavender);
+            animation: gentle-wiggle 0.6s ease-in-out both;
+        }
+        
+        .panel::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, var(--accent-peach), var(--accent-lavender), var(--accent-teal));
+            opacity: 0.8;
+        }
+
+        h2.panel-title {
+            font-size: 1.2rem; color: var(--text-main); margin-top: 0; margin-bottom: 25px;
+            font-weight: 600; display: flex; align-items: center; gap: 12px;
+        }
+        
+        .header-stats {
+            margin-left: auto; font-size: 0.8rem; font-weight: normal; display: flex; gap: 10px;
+        }
+        .stat-pill {
+            padding: 4px 8px; border-radius: 12px; background: rgba(255,255,255,0.1);
+        }
+
+        /* --- LED DOTS --- */
+        .dot { 
+            width: 10px; height: 10px; /* Smaller LEDs */
+            border-radius: 50%; 
+            box-shadow: inset 0 0 2px #000; transition: all 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .led-active {
+            background: var(--accent-green-led);
+            box-shadow: 0 0 10px var(--accent-green-led), 0 0 20px var(--accent-green-led);
+            animation: led-flash-hard 1s infinite;
+        }
+        
+        .led-off {
+            background: var(--accent-green-off);
+            box-shadow: none;
+            opacity: 0.8; animation: none;
+            border-color: #002200;
+        }
+
+        /* New class for fully OFF state (overrides active) */
+        .led-disabled {
+            background: var(--accent-green-off) !important;
+            box-shadow: none !important;
+            opacity: 0.4 !important;
+            animation: none !important;
+            border-color: #001100 !important;
+        }
+        
+        @keyframes led-flash-hard {
+            0%, 49% { opacity: 1; box-shadow: 0 0 15px var(--accent-green-led); }
+            50%, 100% { opacity: 0.3; box-shadow: none; }
+        }
+
+        /* --- CALENDAR GRID --- */
+        #weeks-container {
+            display: flex;
+            flex-direction: column-reverse; /* Stack weeks on top of each other */
+            gap: 20px;
+        }
+
+        .week-group {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+            margin-bottom: 0; /* Handled by container gap */
+            display: none; animation: slideDown 0.5s ease-out;
+            position: relative;
+        }
+        @media (max-width: 500px) { .week-group { grid-template-columns: repeat(3, 1fr); } }
+
+        #week-1 { display: grid; } 
+
+        .week-label {
+            grid-column: 1 / -1; font-size: 0.9rem; color: var(--accent-teal);
+            margin-bottom: 5px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 1px; display: flex; align-items: center; gap: 10px;
+        }
+        .week-label::after { content: ''; flex-grow: 1; height: 1px; background: rgba(255,255,255,0.1); }
+
+        .calendar-day, .milestone-week {
+            background-color: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px; padding: 10px;
+            font-size: 1.1rem; font-weight: 600; color: var(--text-muted);
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 90px; position: relative; opacity: 0.6;
+        }
+        
+        .calendar-day.unlocked { opacity: 1; border-color: rgba(255, 255, 255, 0.2); }
+        
+        .calendar-day.next-step {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+            animation: gentle-wiggle 0.5s infinite ease-in-out;
+            opacity: 1;
+        }
+
+        .calendar-day span.date-num { font-size: 1.4em; }
+        .calendar-day span.status-icon { font-size: 1.2em; margin-top: 5px; opacity: 0; transform: scale(0); transition: all 0.3s;}
+
+        .calendar-day.unlocked:hover {
+            border-color: var(--accent-teal); transform: translateY(-5px);
+            background-color: rgba(79, 209, 197, 0.1); color: var(--text-main);
+        }
+
+        .calendar-day.opened {
+            background: linear-gradient(135deg, rgba(167, 139, 250, 0.2), rgba(0,0,0,0));
+            border-color: var(--accent-lavender); color: #fff;
+            box-shadow: 0 4px 20px rgba(167, 139, 250, 0.2);
+            opacity: 1; animation: none;
+        }
+        .calendar-day.opened span.status-icon { opacity: 1; transform: scale(1); }
+        
+        .milestone-week {
+            background-color: rgba(255, 255, 255, 0.03); color: var(--text-main);
+            border: 2px dashed rgba(255,255,255,0.2); opacity: 0.4;
+            pointer-events: none; filter: grayscale(1); text-align: center;
+        }
+        
+        /* UPDATED: Active Week Unlock Style (Marching Ants + Glow) */
+        .milestone-week.week-ready {
+            opacity: 1; 
+            pointer-events: all; 
+            cursor: pointer; 
+            filter: none;
+            
+            /* Hide standard border to rely on gradient "border" */
+            border: 2px solid transparent;
+            
+            /* Marching Ants via Gradient Backgrounds */
+            background: 
+                linear-gradient(90deg, var(--accent-gold) 50%, transparent 50%) top left, 
+                linear-gradient(90deg, var(--accent-gold) 50%, transparent 50%) bottom left, 
+                linear-gradient(0deg, var(--accent-gold) 50%, transparent 50%) top left, 
+                linear-gradient(0deg, var(--accent-gold) 50%, transparent 50%) top right;
+            
+            background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+            background-size: 15px 2px, 15px 2px, 2px 15px, 2px 15px;
+            
+            /* Combine with a card background color */
+            background-color: rgba(37, 38, 64, 0.8);
+            
+            animation: 
+                ants-march 1s linear infinite, 
+                active-glow-pulse 2s infinite alternate;
+        }
+
+        @keyframes ants-march {
+            0% { background-position: 0 0, 0 100%, 0 0, 100% 0; }
+            100% { background-position: 30px 0, -30px 100%, 0 -30px, 100% 30px; }
+        }
+        
+        @keyframes active-glow-pulse {
+            from { box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
+            to { box-shadow: 0 0 25px rgba(255, 215, 0, 0.6), inset 0 0 10px rgba(255, 215, 0, 0.2); }
+        }
+
+        .milestone-week.opened {
+            border: 2px solid var(--accent-gold);
+            background: rgba(255, 215, 0, 0.15); color: var(--accent-gold);
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.2); animation: none;
+        }
+
+        /* --- STATS & STARS --- */
+        .stats-grid { display: flex; flex-direction: column; gap: 8px; } 
+        
+        .star-row {
+            display: flex; 
+            flex-direction: row; 
+            align-items: center; 
+            justify-content: flex-start; 
+            gap: 15px;
+            padding: 8px 15px; 
+            background: rgba(255,255,255,0.03); 
+            border-radius: 12px;
+        }
+        .metric-label { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
+        .stars-container { display: flex; gap: 3px; font-size: 1.4rem; color: #33344a; cursor: pointer; }
+        .locked-stars { pointer-events: none; opacity: 0.5; filter: grayscale(1); }
+        .star { transition: color 0.2s, transform 0.2s; }
+        .star:hover { transform: scale(1.2); color: var(--accent-gold); }
+        .star.active {
+            color: var(--accent-teal);
+            filter: drop-shadow(0 0 8px rgba(79, 209, 197, 0.6));
+            animation: popIn 0.3s backwards;
+        }
+        
+        /* --- DAILY WISDOM BOX --- */
+        .daily-wisdom-box {
+            margin-top: 15px; margin-bottom: 15px;
+            background: rgba(167, 139, 250, 0.1);
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            padding: 20px; border-radius: 12px; text-align: center;
+            transition: all 0.5s ease;
+        }
+        .daily-wisdom-box.unlocked-gold {
+            animation: mystic-border-pulse 4s infinite alternate;
+        }
+
+        .pulsing-gold-border {
+            animation: strong-shimmer-pulse 3s infinite alternate !important;
+            border: 2px solid var(--accent-gold) !important;
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(79, 209, 197, 0.2) !important;
+        }
+        
+        @keyframes mystic-border-pulse {
+            0% { border-color: var(--accent-gold); box-shadow: 0 0 20px rgba(255, 215, 0, 0.2); }
+            100% { border-color: var(--accent-teal); box-shadow: 0 0 30px rgba(79, 209, 197, 0.4); }
+        }
+
+        @keyframes strong-shimmer-pulse {
+            0% { border-color: var(--accent-gold); box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
+            50% { border-color: #fff; box-shadow: 0 0 40px rgba(255, 215, 0, 0.6); }
+            100% { border-color: var(--accent-teal); box-shadow: 0 0 30px rgba(79, 209, 197, 0.5); }
+        }
+        
+        .month-title-glow {
+            text-shadow: 0 0 15px var(--accent-gold), 0 0 30px var(--accent-teal);
+            animation: text-glow-pulse 2s infinite alternate;
+        }
+        @keyframes text-glow-pulse {
+            from { text-shadow: 0 0 10px var(--accent-gold); }
+            to { text-shadow: 0 0 25px var(--accent-gold), 0 0 10px #fff; }
+        }
+
+        .wisdom-title {
+            color: var(--accent-lavender); font-size: 0.9rem;
+            text-transform: uppercase; letter-spacing: 1px;
+            margin-bottom: 10px; font-weight: 600;
+        }
+        .wisdom-text { color: #fff; font-size: 0.95rem; font-style: italic; line-height: 1.4; }
+        .wisdom-author { color: var(--text-muted); font-size: 0.8rem; margin-top: 5px; text-align: right; }
+
+        /* --- STREAK & CLAIM --- */
+        .streak-panel {
+            background: rgba(0,0,0,0.2); border-radius: 15px;
+            padding: 15px; margin-top: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(79, 209, 197, 0.2);
+            text-align: center; display: flex;
+            flex-direction: column; 
+            align-items: center; gap: 10px;
+        }
+        
+        .streak-intro {
+            font-size: 0.8rem; color: var(--text-muted);
+            max-width: 95%; line-height: 1.4;
+        }
+
+        /* Slimmer Claim Button */
+        .claim-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 8px; font-size: 1.1rem; color: #000; font-weight: 800;
+            background: var(--accent-teal); 
+            padding: 14px 25px; 
+            border-radius: 30px; border: none; cursor: pointer;
+            transition: all 0.3s; white-space: nowrap; 
+            width: 95%;
+            margin: 0 auto;
+        }
+        
+        .claim-btn.btn-locked {
+            opacity: 0.4; filter: grayscale(1);
+            cursor: not-allowed; pointer-events: none;
+            background: #333; color: #888; border: 1px solid #555;
+            box-shadow: none; animation: none;
+        }
+        
+        .claim-btn.btn-ready {
+            background: var(--accent-gold); border: 2px solid #fff;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+            animation: soft-jiggle 1s infinite ease-in-out, color-cycle 3s infinite ease-in-out; color: #000;
+        }
+        
+        .claim-btn.btn-claimed {
+            animation: claim-fade 2s forwards ease-out;
+            border: 2px solid var(--accent-teal);
+            box-shadow: 0 0 15px rgba(79, 209, 197, 0.4);
+            cursor: default;
+        }
+
+        @keyframes color-cycle {
+            0%, 70% { background-color: var(--accent-teal); border-color: var(--accent-teal); color: #000; }
+            85% { background-color: var(--accent-gold); border-color: #fff; color: #000; }
+            100% { background-color: var(--accent-teal); border-color: var(--accent-teal); color: #000; }
+        }
+        
+        .cheat-btn {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+            font-size: 0.75rem; 
+            text-transform: uppercase;
+            padding: 5px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            margin-top: 5px;
+            opacity: 0.7;
+            transition: all 0.3s;
+            text-decoration: none;
+            font-weight: 700;
+        }
+        .cheat-btn:hover { opacity: 1; background: rgba(255, 107, 107, 0.2); transform: scale(1.05); }
+
+        @keyframes soft-jiggle {
+            0% { transform: rotate(0deg); } 25% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); } 75% { transform: rotate(-2deg); }
+            100% { transform: rotate(0deg); }
+        }
+        
+        @keyframes violent-shake {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            10% { transform: translate(-5px, -2px) rotate(-1deg); }
+            20% { transform: translate(5px, 2px) rotate(1deg); }
+            30% { transform: translate(-5px, 2px) rotate(0deg); }
+            40% { transform: translate(5px, -2px) rotate(1deg); }
+            50% { transform: translate(-5px, 2px) rotate(-1deg); }
+            60% { transform: translate(5px, -2px) rotate(0deg); }
+            70% { transform: translate(-5px, 2px) rotate(-1deg); }
+            80% { transform: translate(5px, -2px) rotate(1deg); }
+            90% { transform: translate(-5px, 2px) rotate(0deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+
+        /* --- GRAPHS --- */
+        #graphs-container { 
+            margin-top: 20px; 
+            display: flex; 
+            flex-direction: column-reverse; /* REVERSE STACKING: Newest graphs on top */
+            gap: 15px; 
+        }
+        .weekly-summary-graph { background: rgba(0,0,0,0.3); border-radius: 12px; padding: 15px; display: none; }
+        .mini-graph-bars { display: flex; align-items: flex-end; justify-content: center; gap: 8px; height: 100px; }
+        .mini-bar {
+            flex: 1; background: var(--accent-teal); border-radius: 4px 4px 0 0;
+            max-width: 20px; transition: height 0.5s;
+        }
+        /* FIX: Changed phantom memory height from 100% to 4px baseline */
+        .mini-bar.empty { background: rgba(255,255,255,0.05); height: 4px !important; }
+
+        /* --- REALITY & REGRET PANELS --- */
+        .reality-section {
+            grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px;
+        }
+        @media (max-width: 800px) { .reality-section { grid-template-columns: 1fr; } }
+
+        .panel-reality {
+            border: 1px solid rgba(255, 215, 0, 0.3); background: rgba(255, 215, 0, 0.05);
+            padding: 20px; display: flex; flex-direction: column; justify-content: space-between;
+            min-height: 160px; 
+            /* Added requested animation */
+            animation: mystic-border-pulse 4s infinite alternate;
+        }
+        .reality-category {
+            text-transform: uppercase; font-size: 0.8rem; color: var(--accent-gold);
+            font-weight: 800; margin-bottom: 10px; text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+        }
+        .reality-text { font-size: 1rem; line-height: 1.5; color: #eee; flex-grow: 1; margin-bottom: 15px;}
+        
+        .reality-controls { display: flex; justify-content: space-between; gap: 10px; }
+        .reality-btn {
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            color: #eee; width: 32px; height: 32px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .reality-btn:hover:not(:disabled) { background: rgba(255, 215, 0, 0.2); color: var(--accent-gold); }
+        .reality-btn:disabled { opacity: 0.3; cursor: default; }
+
+        #regret-panel {
+            background: rgba(0, 0, 0, 0.4); border: 1px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 16px; position: relative; 
+            min-height: 300px; flex-grow: 1; 
+            overflow: hidden; margin-top: 20px;
+        }
+        .regret-title {
+            position: absolute; top: 15px; width: 100%; text-align: center;
+            color: var(--accent-lavender); font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px;
+            z-index: 5; pointer-events: none;
+        }
+        .regret-trophy-bg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12rem;
+            opacity: 0.15;
+            pointer-events: none;
+            filter: drop-shadow(0 0 20px gold);
+            z-index: 0;
+            transition: all 1s ease-in-out;
+            white-space: nowrap;
+        }
+        
+        /* Giant Trophies State - 100% Bigger + Jiggle */
+        .trophy-triumph {
+             font-size: 32rem !important; /* Scaled UP as requested */
+             opacity: 0.8 !important;
+             text-shadow: 0 0 50px gold;
+             filter: drop-shadow(0 0 40px gold) !important;
+             animation: trophy-idle-jiggle 15s infinite; /* Jiggle 15s interval */
+        }
+        
+        @keyframes trophy-idle-jiggle {
+            0%, 5%, 100% { transform: rotate(0deg) scale(1); }
+            1% { transform: rotate(-5deg) scale(1.05); }
+            2% { transform: rotate(5deg) scale(1.05); }
+            3% { transform: rotate(-5deg) scale(1.05); }
+            4% { transform: rotate(5deg) scale(1.05); }
+        }
+        
+        /* Giant Trophies in Regret Panel */
+        #regret-trophy-container {
+            display: none; /* Hidden until finale end */
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column; /* Center single trophy */
+            gap: 40px;
+            position: absolute;
+            top: 0; left: 0;
+            z-index: 2;
+        }
+        
+        .giant-trophy-in-panel {
+             font-size: 12rem; /* Base size, enhanced by trophy-triumph class */
+        }
+
+        .regret-ghost-wrapper {
+            position: absolute; pointer-events: none;
+            /* Animation drift set in JS */
+        }
+        .regret-ghost-content {
+            color: rgba(255, 255, 255, 0.8);
+            font-style: italic; white-space: nowrap;
+            display: inline-block;
+        }
+        
+        /* Updated Ghost Animation: FAINTER (0.4), SLOW FADE IN/OUT */
+        @keyframes drift1 { /* Up-Right */
+            0% { opacity: 0; transform: translate(0, 0) rotate(0deg); }
+            25% { opacity: 0.4; }  /* Slower fade in */
+            75% { opacity: 0.4; }  /* Slower fade out start */
+            100% { opacity: 0; transform: translate(160px, -60px) rotate(5deg); }
+        }
+        @keyframes drift2 { /* Up-Left */
+            0% { opacity: 0; transform: translate(0, 0) rotate(0deg); }
+            25% { opacity: 0.4; } 
+            75% { opacity: 0.4; }
+            100% { opacity: 0; transform: translate(-160px, -60px) rotate(-5deg); }
+        }
+        @keyframes drift3 { /* Down-Right */
+            0% { opacity: 0; transform: translate(0, 0) rotate(0deg); }
+            25% { opacity: 0.4; } 
+            75% { opacity: 0.4; }
+            100% { opacity: 0; transform: translate(160px, 60px) rotate(5deg); }
+        }
+        @keyframes drift4 { /* Down-Left */
+            0% { opacity: 0; transform: translate(0, 0) rotate(0deg); }
+            25% { opacity: 0.4; } 
+            75% { opacity: 0.4; }
+            100% { opacity: 0; transform: translate(-160px, 60px) rotate(-5deg); }
+        }
+        
+        /* Spinning Cup Animation */
+        @keyframes spin-cup {
+            0% { transform: rotateY(0deg) scale(1); }
+            50% { transform: rotateY(180deg) scale(1.2); }
+            100% { transform: rotateY(360deg) scale(1); }
+        }
+
+        /* Exploding Ghosts */
+        @keyframes ghost-shake-anim {
+            0% { transform: translate(0,0); }
+            10% { transform: translate(-2px, -1px); }
+            20% { transform: translate(2px, 1px); }
+            30% { transform: translate(-2px, 1px); }
+            40% { transform: translate(2px, -1px); }
+            50% { transform: translate(-2px, -1px); }
+            60% { transform: translate(2px, 1px); }
+            70% { transform: translate(-2px, 1px); }
+            80% { transform: translate(2px, -1px); }
+            90% { transform: translate(-2px, 0px); }
+            100% { transform: translate(0,0); }
+        }
+        
+        .ghost-pressure-build {
+            animation: ghost-shake-anim 1.2s infinite; /* Slowed to 1.2s */
+            color: var(--accent-red) !important;
+            text-shadow: 0 0 15px red;
+            font-weight: bold;
+            transition: all 0.5s;
+        }
+        
+        @keyframes pop-transform {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.6); } 
+            100% { transform: scale(1); }
+        }
+        .ghost-reward-pop {
+            animation: pop-transform 0.3s ease-out; /* Faster pop */
+            font-style: normal;
+            font-size: 2.5rem !important; /* Larger reward */
+        }
+        
+        @keyframes float-permanent-wide {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(45vw, -15vh) rotate(15deg); }
+            50% { transform: translate(-45vw, 15vh) rotate(-10deg); }
+            75% { transform: translate(40vw, -25vh) rotate(5deg); }
+            100% { transform: translate(-40vw, 20vh) rotate(0deg); }
+        }
+        .ghost-permanent-float {
+            animation: float-permanent-wide 25s linear infinite alternate !important;
+        }
+
+        /* Added Fade Out class for Emoji Lifecycle */
+        .ghost-fade-out {
+            opacity: 0 !important;
+            transition: opacity 3s linear !important; /* Faster fade */
+        }
+
+        /* --- MARQUEE & FOOTER --- */
+        .marquee-container {
+            grid-column: 1 / -1; width: 100%; overflow: hidden;
+            background: rgba(0,0,0,0.1); padding: 20px 0; margin-top: 40px;
+            border-top: 1px solid var(--glass-border); white-space: nowrap;
+        }
+        .marquee-wrapper { display: inline-block; animation: marquee 13s linear infinite; }
+        .marquee-content { display: inline-block; color: var(--accent-peach); padding-right: 300px; }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        
+        .keyword-pop {
+            display: inline-block; color: var(--accent-gold); font-weight: 800;
+            animation: word-pop 2s infinite; margin: 0 5px;
+        }
+        @keyframes word-pop { 
+            0%, 100% { transform: scale(1); } 
+            50% { transform: scale(1.2); text-shadow: 0 0 15px var(--accent-gold); } 
+        }
+
+        .footer-tagline { grid-column: 1 / -1; text-align: center; padding: 20px; color: #888; font-size: 0.9rem;}
+        
+        .rocket-icon { font-size: 1.5rem; display: inline-block; vertical-align: middle; margin-left: 5px; }
+        @keyframes heart-pulse {
+            0% { transform: scale(1); } 15% { transform: scale(1.3); } 30% { transform: scale(1); }
+            45% { transform: scale(1.15); } 60% { transform: scale(1); } 100% { transform: scale(1); }
+        }
+        .heart-pulse { display: inline-block; animation: heart-pulse 2.5s infinite ease-in-out; color: #00FF41; }
+        .copyright { margin-top: 20px; font-size: 0.9rem; color: var(--text-muted); opacity: 0.8; }
+        .copyright a { color: var(--text-muted); text-decoration: none; }
+        .copyright a:hover { color: var(--accent-teal); }
+
+        /* --- MODALS --- */
+        .modal {
+            display: none; position: fixed; z-index: 100; left: 0; top: 0;
+            width: 100%; height: 100%; background-color: rgba(15, 16, 32, 0.95);
+            backdrop-filter: blur(8px); align-items: center; justify-content: center;
+            animation: fadeIn 0.3s;
+        }
+        .modal-content {
+            background: #252640; border: 1px solid var(--accent-teal);
+            box-shadow: 0 0 50px rgba(79, 209, 197, 0.2);
+            padding: 30px; width: 90%; max-width: 500px; border-radius: 24px;
+            text-align: center; position: relative;
+        }
+        .modal h2 { color: var(--accent-teal); margin-top: 0; }
+        .close-button {
+            background: var(--accent-teal); color: #0f1020; padding: 12px 24px;
+            border-radius: 8px; font-weight: bold; border: none; cursor: pointer;
+            margin-top: 20px; transition: transform 0.2s;
+        }
+        .close-button:hover { transform: scale(1.05); }
+        
+        /* Jitter animation for text */
+        @keyframes text-jitter {
+            0% { transform: translate(0,0) rotate(0deg); }
+            25% { transform: translate(2px, 2px) rotate(1deg); }
+            50% { transform: translate(-2px, -2px) rotate(-1deg); }
+            75% { transform: translate(-2px, 2px) rotate(0deg); }
+            100% { transform: translate(2px, -2px) rotate(0deg); }
+        }
+
+        .jittery-text {
+            animation: text-jitter 0.2s infinite;
+            color: var(--accent-red); /* Ensure color sticks */
+            display: inline-block; /* Required for transform */
+        }
+
+        /* Runaway button styling logic - FIXED DIMENSIONS */
+        #cheat-continue-btn {
+            /* Strict sizing to prevent 'fat' button */
+            padding: 0 !important; /* Remove padding, use fixed dims */
+            width: 160px !important; /* Fixed width */
+            height: 36px !important; /* Fixed height */
+            line-height: 36px !important;
+            font-size: 0.85rem !important;
+            border-radius: 20px !important; /* Lozenge */
+            white-space: nowrap;
+            
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            /* Positioning */
+            position: absolute; 
+            transition: top 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), left 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%); /* Centered initally */
+            z-index: 10;
+            box-sizing: border-box;
+        }
+        
+        /* Golden "Fantastic" Modal Override */
+        #claimModal .modal-content {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.2);
+        }
+        #claimModal h2 {
+            color: var(--accent-gold);
+        }
+        #claimModal .close-button {
+            background: var(--accent-gold);
+            color: #000;
+        }
+
+        /* --- CHEAT PANEL --- */
+        #cheat-mode-panel {
+            grid-column: 1 / -1;
+            background-color: #110505; border-top: 2px solid #ff3333;
+            padding: 20px; margin-top: 50px; width: 100%; text-align: center;
+        }
+        .cheat-controls { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333; transition: .4s; border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 20px; width: 20px;
+            left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--accent-red); }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        /* --- FEEDBACK SECTION --- */
+        #feedback-section {
+            margin-top: 40px; padding-top: 20px; border-top: 1px solid #333;
+            width: 100%; max-width: 600px; margin-left: auto; margin-right: auto;
+        }
+        #feedback-section h4 { color: var(--accent-red); text-transform: uppercase; margin-bottom: 10px; }
+        #feedbackText {
+            width: 100%; height: 300px; 
+            background: #1a0b0b; border: 1px solid #500; color: #ffcccc;
+            padding: 15px; border-radius: 8px; resize: vertical; font-family: monospace;
+        }
+        #feedbackText:focus { outline: none; border-color: #f00; }
+        #feedbackBtn {
+            background: #a00; color: #fff; border: none; padding: 10px 20px;
+            border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px;
+        }
+        #feedbackBtn:hover { background: #f00; }
+
+        /* --- ANIMATIONS --- */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes gentle-wiggle { 
+            0%, 100% { transform: rotate(0deg); } 
+            25% { transform: rotate(-2deg); } 
+            75% { transform: rotate(2deg); } 
+        }
+        @keyframes slideDown { from { opacity:0; transform: translateY(-10px); } to { opacity:1; transform: translateY(0); } }
+        @keyframes popIn { 0% { transform: scale(0); } 70% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        
+        .start-btn {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #000; font-weight: 800; padding: 10px 25px;
+            border-radius: 50px; border: none; font-size: 1.1rem;
+            margin-top: 25px; cursor: pointer; transition: transform 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            margin-left: auto; margin-right: auto;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+        .start-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
+
+        /* New Styles for oversized cups */
+        .oversized-cup {
+            position: fixed; top: 50%; transform: translateY(-50%);
+            font-size: 8rem; animation: spin-cup 4s infinite linear;
+            z-index: 10002;
+        }
+        .cup-left { left: 5%; }
+        .cup-right { right: 5%; }
+
+        /* Monthly Summary Graph in Finale & Dashboard */
+        .final-graph-container {
+            margin-top: 20px; width: 100%; max-width: 500px;
+            background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px;
+            display: flex; align-items: flex-end; justify-content: space-around;
+            height: 120px; z-index: 10003;
+            border: 1px solid transparent;
+        }
+        .final-bar {
+            width: 30px; background: var(--accent-gold);
+            border-radius: 4px 4px 0 0; transition: height 1s;
+            position: relative;
+        }
+        .final-bar span {
+            position: absolute; bottom: -25px; left: 50%; transform: translateX(-50%);
+            font-size: 0.7rem; color: #aaa; white-space: nowrap;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- INSTRUCTION OVERLAY -->
+    <div id="instructions-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:9999; background:rgba(15,16,32,0.95); display:flex; align-items:center; justify-content:center;">
+        <div style="background:var(--bg-card); padding:40px; border-radius:24px; max-width:650px; text-align:center; border: 2px solid var(--accent-peach);">
+            <h2 style="color:var(--accent-peach);">Welcome to No-vember!</h2>
+            <p style="text-align:left; margin: 15px 0;">1. 🛤️ Click <strong>'Day 1'</strong> when you've been sober all day to begin your journey.</p>
+            <p style="text-align:left; margin: 15px 0;">2. ⭐ Complete your personal <strong>All-Star review</strong>.</p>
+            <p style="text-align:left; margin: 15px 0;">3. 🏆 Unlock <strong>'Daily Wisdom'</strong> and claim your day.</p>
+            
+            <p style="font-size:0.9rem; color: #888; margin-top:20px; font-style:italic;">
+                To make No-vember more useful it could allow starting any month and also instructions to start on 1 Nov havent been refined yet, thats for another update.
+            </p>
+
+            <p style="font-size:0.8rem; color:#888; margin-top:20px;">Note: Progress is saved automatically to this device.</p>
+            
+            <button onclick="document.getElementById('instructions-overlay').style.display='none'" class="start-btn">Let's Do This 🚀</button>
+        </div>
+    </div>
+    
+    <!-- WEEK WIN OVERLAY -->
+    <div id="weekly-win-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:10000; flex-direction:column; justify-content:center; align-items:center;">
+        <div style="font-size: 10rem; animation: spin-cup 3s infinite linear;">🏆</div>
+        <h2 style="color: var(--accent-gold); margin-top: 20px; text-shadow: 0 0 20px var(--accent-gold);">WEEK COMPLETE!</h2>
+    </div>
+
+    <h1><a href="https://no-vember.com" style="text-decoration:none; color:inherit; cursor:pointer;">No-vember: The Power of Saying No</a></h1>
+    <div class="quote-box">
+        "No thanks" is a complete sentence. Saying No to alcohol is like saying Yes to better things. <a href="#">No-vember</a>
+    </div>
+
+    <div class="dashboard-container">
+        
+        <!-- LEFT PANEL: CALENDAR -->
+        <div class="panel">
+            <h2 class="panel-title">
+                <div style="display:flex; align-items:center; gap:10px;">
+                   <div class="dot led-active" id="led-steps"></div> Daily Steps
+                </div>
+                <div class="header-stats">
+                    <span class="stat-pill">Sober: <span id="lbl-sober-count">0</span></span>
+                    <!-- Cheat count hidden as requested -->
+                    <span class="stat-pill" style="color:var(--accent-red); display: none;">Cheat: <span id="lbl-cheat-count">0</span></span>
+                </div>
+            </h2>
+            
+            <div id="weeks-container">
+                 <!-- Weeks will be in reverse order here via CSS -->
+                 
+                <!-- WEEK 1 -->
+                <div id="week-1" class="week-group">
+                    <div class="week-label">Week 1: New Beginnings</div>
+                    <div class="calendar-day unlocked next-step" data-day="1"><span class="date-num">1</span><span class="status-icon">🌱</span></div>
+                    <div class="calendar-day" data-day="2"><span class="date-num">2</span><span class="status-icon">🌱</span></div>
+                    <div class="calendar-day" data-day="3"><span class="date-num">3</span><span class="status-icon">🌱</span></div>
+                    <div class="calendar-day" data-day="4"><span class="date-num">4</span><span class="status-icon">🌱</span></div>
+                    <div class="calendar-day" data-day="5"><span class="date-num">5</span><span class="status-icon">🌱</span></div>
+                    <div class="calendar-day" data-day="6"><span class="date-num">6</span><span class="status-icon">🌱</span></div>
+                    <div class="calendar-day" data-day="7"><span class="date-num">7</span><span class="status-icon">🌱</span></div>
+                    <div class="milestone-week" id="milestone-1" data-milestone="1" onclick="clickMilestone(1, 2)">Unlock<br>Week 2 🔓</div>
+                </div>
+                
+                <!-- WEEK 2 (LEAVES) -->
+                <div id="week-2" class="week-group">
+                    <div class="week-label">Week 2: Building Strength</div>
+                    <div class="calendar-day" data-day="8"><span class="date-num">8</span><span class="status-icon">🌿</span></div>
+                    <div class="calendar-day" data-day="9"><span class="date-num">9</span><span class="status-icon">🌿</span></div>
+                    <div class="calendar-day" data-day="10"><span class="date-num">10</span><span class="status-icon">🌿</span></div>
+                    <div class="calendar-day" data-day="11"><span class="date-num">11</span><span class="status-icon">🌿</span></div>
+                    <div class="calendar-day" data-day="12"><span class="date-num">12</span><span class="status-icon">🌿</span></div>
+                    <div class="calendar-day" data-day="13"><span class="date-num">13</span><span class="status-icon">🌿</span></div>
+                    <div class="calendar-day" data-day="14"><span class="date-num">14</span><span class="status-icon">🌿</span></div>
+                    <div class="milestone-week" id="milestone-2" data-milestone="2" onclick="clickMilestone(2, 3)">Unlock<br>Week 3 🔓</div>
+                </div>
+    
+                <!-- WEEK 3 (TREES) -->
+                <div id="week-3" class="week-group">
+                    <div class="week-label">Week 3: Finding Clarity</div>
+                    <div class="calendar-day" data-day="15"><span class="date-num">15</span><span class="status-icon">🌳</span></div>
+                    <div class="calendar-day" data-day="16"><span class="date-num">16</span><span class="status-icon">🌳</span></div>
+                    <div class="calendar-day" data-day="17"><span class="date-num">17</span><span class="status-icon">🌳</span></div>
+                    <div class="calendar-day" data-day="18"><span class="date-num">18</span><span class="status-icon">🌳</span></div>
+                    <div class="calendar-day" data-day="19"><span class="date-num">19</span><span class="status-icon">🌳</span></div>
+                    <div class="calendar-day" data-day="20"><span class="date-num">20</span><span class="status-icon">🌳</span></div>
+                    <div class="calendar-day" data-day="21"><span class="date-num">21</span><span class="status-icon">🌳</span></div>
+                    <div class="milestone-week" id="milestone-3" data-milestone="3" onclick="clickMilestone(3, 4)">Unlock<br>Week 4 🔓</div>
+                </div>
+                
+                <!-- WEEK 4 (APPLES) -->
+                <div id="week-4" class="week-group">
+                    <div class="week-label">Week 4: Mastery</div>
+                    <div class="calendar-day" data-day="22"><span class="date-num">22</span><span class="status-icon">🍎</span></div>
+                    <div class="calendar-day" data-day="23"><span class="date-num">23</span><span class="status-icon">🍎</span></div>
+                    <div class="calendar-day" data-day="24"><span class="date-num">24</span><span class="status-icon">🍎</span></div>
+                    <div class="calendar-day" data-day="25"><span class="date-num">25</span><span class="status-icon">🍎</span></div>
+                    <div class="calendar-day" data-day="26"><span class="date-num">26</span><span class="status-icon">🍎</span></div>
+                    <div class="calendar-day" data-day="27"><span class="date-num">27</span><span class="status-icon">🍎</span></div>
+                    <div class="calendar-day" data-day="28"><span class="date-num">28</span><span class="status-icon">🍎</span></div>
+                    <div class="milestone-week" id="milestone-4" data-milestone="4" onclick="clickMilestone(4, 5)">Unlock<br>Finale 🔓</div>
+                </div>
+    
+                <!-- FINAL DAYS (GOLD COINS) -->
+                <div id="week-final" class="week-group" style="grid-template-columns: repeat(2, 1fr);">
+                    <div class="calendar-day" data-day="29"><span class="date-num">29</span><span class="status-icon">🪙</span></div>
+                    <div class="calendar-day" data-day="30"><span class="date-num">30</span><span class="status-icon">🪙</span></div>
+                </div>
+            </div>
+            
+            <!-- REGRET PANEL -->
+            <div id="regret-panel">
+                <div class="regret-title">The Ghosts of Past REGRETS</div>
+                <!-- Removed Background Trophy -->
+                <!-- JS will populate floating regrets here -->
+                <div id="regret-trophy-container">
+                    <div class="giant-trophy-in-panel trophy-triumph">🏆</div>
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- RIGHT PANEL: STATS -->
+        <div class="panel" id="stats-panel">
+            <h2 class="panel-title"><div class="dot led-off" id="led-checkin"></div> Daily Check-In</h2>
+            
+            <div class="stats-grid locked-stars">
+                <!-- Metrics -->
+                <div class="star-row">
+                    <div class="stars-container" data-metric="clarity">
+                        <span class="star" onclick="setScore('clarity', 1)">★</span><span class="star" onclick="setScore('clarity', 2)">★</span><span class="star" onclick="setScore('clarity', 3)">★</span><span class="star" onclick="setScore('clarity', 4)">★</span><span class="star" onclick="setScore('clarity', 5)">★</span>
+                    </div>
+                    <div class="metric-label">Mental Clarity</div>
+                </div>
+                <div class="star-row">
+                    <div class="stars-container" data-metric="energy">
+                        <span class="star" onclick="setScore('energy', 1)">★</span><span class="star" onclick="setScore('energy', 2)">★</span><span class="star" onclick="setScore('energy', 3)">★</span><span class="star" onclick="setScore('energy', 4)">★</span><span class="star" onclick="setScore('energy', 5)">★</span>
+                    </div>
+                    <div class="metric-label">Energy Levels</div>
+                </div>
+                <div class="star-row">
+                    <div class="stars-container" data-metric="positivity">
+                        <span class="star" onclick="setScore('positivity', 1)">★</span><span class="star" onclick="setScore('positivity', 2)">★</span><span class="star" onclick="setScore('positivity', 3)">★</span><span class="star" onclick="setScore('positivity', 4)">★</span><span class="star" onclick="setScore('positivity', 5)">★</span>
+                    </div>
+                    <div class="metric-label">Sober Positivity</div>
+                </div>
+                <div class="star-row">
+                    <div class="stars-container" data-metric="confidence">
+                        <span class="star" onclick="setScore('confidence', 1)">★</span><span class="star" onclick="setScore('confidence', 2)">★</span><span class="star" onclick="setScore('confidence', 3)">★</span><span class="star" onclick="setScore('confidence', 4)">★</span><span class="star" onclick="setScore('confidence', 5)">★</span>
+                    </div>
+                    <div class="metric-label">Confidence</div>
+                </div>
+            </div>
+
+            <!-- Streak Panel (SWAPPED POSITION: NOW ABOVE WISDOM) -->
+            <div class="streak-panel">
+                <div class="streak-intro">Claim this sober day if you really didn't drink any alcohol all day and evening</div>
+                <button id="btn-claim-day" class="claim-btn btn-locked">🥇 0 Sober Days</button>
+                <button id="btn-cheated" class="cheat-btn" onclick="openCheatedModal()" style="display:none;">I CHEATED</button>
+            </div>
+
+            <!-- Daily Wisdom -->
+            <div id="daily-quote" class="daily-wisdom-box">
+                <div class="wisdom-title">DAILY WISDOM</div>
+                <div id="quote-text" class="wisdom-text" style="font-style: normal; color: var(--text-muted);">Complete your daily check-in to unlock the quote of wisdom!</div>
+                <div id="quote-author" class="wisdom-author"></div>
+                
+                <div class="reality-controls" style="justify-content: center; margin-top: 15px;">
+                     <button id="btn-quote-prev" class="reality-btn" onclick="reviewWisdom(-1)" disabled>❮</button>
+                     <button id="btn-quote-next" class="reality-btn" onclick="reviewWisdom(1)" disabled>❯</button>
+                </div>
+            </div>
+            
+            <!-- Weekly Graphs -->
+            <div id="graphs-container">
+                <div id="graph-week-1" class="weekly-summary-graph">
+                    <div style="text-align:center; font-size:0.8rem; color:var(--accent-teal); margin-bottom:10px;">WEEK 1 VITALITY</div>
+                    <div class="mini-graph-bars" id="bars-week-1"></div>
+                </div>
+                
+                <!-- NEW: Monthly Summary Graph Container -->
+                <div id="graph-month-summary" class="weekly-summary-graph" style="display:none;">
+                    <div class="month-title-glow" style="text-align:center; font-size:0.8rem; color:var(--accent-gold); margin-bottom:10px;">MONTH OF VITALITY</div>
+                    <div class="final-graph-container pulsing-gold-border" id="dashboard-month-bars" style="margin: 0 auto; background: transparent; padding: 0; height: 100px;">
+                        <!-- Bars injected by JS -->
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- REALITY CHECK SECTION -->
+        <div class="reality-section">
+            <div class="panel panel-reality">
+                <div class="reality-category">Physical Impact</div>
+                <div class="reality-text" id="reality-physical">Alcohol is a Group 1 Carcinogen, in the same category as asbestos and tobacco.</div>
+                <div class="reality-controls">
+                    <button id="btn-physical-prev" class="reality-btn" onclick="reviewTruth('physical', -1)">❮</button>
+                    <button id="btn-physical-next" class="reality-btn" disabled onclick="reviewTruth('physical', 1)">❯</button>
+                </div>
+            </div>
+            
+            <div class="panel panel-reality">
+                <div class="reality-category">Mental Impact</div>
+                <div class="reality-text" id="reality-mental">Hangxiety is real: Alcohol depletes GABA (calming chemical) leaving you anxious for days.</div>
+                <div class="reality-controls">
+                    <button id="btn-mental-prev" class="reality-btn" onclick="reviewTruth('mental', -1)">❮</button>
+                    <button id="btn-mental-next" class="reality-btn" disabled onclick="reviewTruth('mental', 1)">❯</button>
+                </div>
+            </div>
+            
+            <div class="panel panel-reality">
+                <div class="reality-category">Social & Financial</div>
+                <div class="reality-text" id="reality-social">The average drinker spends over £2,000 a year on alcohol alone.</div>
+                <div class="reality-controls">
+                    <button id="btn-social-prev" class="reality-btn" onclick="reviewTruth('social', -1)">❮</button>
+                    <button id="btn-social-next" class="reality-btn" disabled onclick="reviewTruth('social', 1)">❯</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="marquee-container">
+            <div class="marquee-wrapper">
+                <div class="marquee-content">
+                    With gratitude for every penny saved, every clear morning gained, and every regret avoided. You are building a <span class="keyword-pop">life</span> of <span class="keyword-pop">health</span>, <span class="keyword-pop">wealth</span> and genuine <span class="keyword-pop">happiness</span>. — No-vember
+                </div>
+                <div class="marquee-content">
+                    With gratitude for every penny saved, every clear morning gained, and every regret avoided. You are building a <span class="keyword-pop">life</span> of <span class="keyword-pop">health</span>, <span class="keyword-pop">wealth</span> and genuine <span class="keyword-pop">happiness</span>. — No-vember
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-tagline">
+            <div style="font-size: 0.9rem; color: #aaa; margin-top: 10px;">
+                Know someone who needs this? <span style="color: var(--accent-teal); text-decoration: underline; cursor: pointer;" onclick="shareChallenge()">Share the No-vember Challenge</span> <span class="rocket-icon" onclick="shareChallenge()" style="cursor: pointer;">🚀</span>
+            </div>
+            <div class="copyright">
+                Made with love <span class="heart-pulse">💚</span> for the sober curious. &copy; 2025 <a href="#">No-vember</a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- CHEAT MODE / DEBUG PANEL -->
+    <div id="cheat-mode-panel">
+        <h3 style="color:#ff3333; margin-top:0;">⚠️ Cheat Mode ⚠️</h3>
+        <p style="color:#666; font-size:0.9rem; margin-bottom:20px;">Use this to test the app flow without waiting days.</p>
+        
+        <div class="cheat-controls">
+            <div style="display:flex; align-items:center; gap:10px; color:#aaa;">
+                <span>Ignore Wait Timer</span>
+                <label class="switch"><input type="checkbox" id="debugSkipWaitToggle"><span class="slider"></span></label>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px; color:#aaa;">
+                <span>Ignore Star Rating</span>
+                <label class="switch"><input type="checkbox" id="skipCheckInToggle"><span class="slider"></span></label>
+            </div>
+            <button onclick="clearProgress()" style="padding:5px 15px; background:#ff3333; color:white; border:none; border-radius:5px; cursor:pointer;">Reset All Progress</button>
+            <button onclick="showGrandFinale()" style="padding:5px 15px; background:#FFD700; color:black; border:none; border-radius:5px; cursor:pointer;">Play Final Challenge</button>
+            <button onclick="triggerGhostExplosions()" style="padding:5px 15px; background:#A78BFA; color:white; border:none; border-radius:5px; cursor:pointer;">Start Ghost Explosions</button>
+        </div>
+
+        <!-- FEEDBACK SECTION INSIDE DEBUG -->
+        <div id="feedback-section">
+            <h4>Feedback / Bug Report</h4>
+            <textarea id="feedbackText" placeholder="feedback thoughts and notes and any errors please" maxlength="3000"></textarea>
+            <br>
+            <div style="display:flex; align-items:center; justify-content:center; gap:10px;">
+                <button id="feedbackBtn" onclick="sendFeedback()">Copy Text</button>
+                <span style="color:#888; font-size:0.9rem; font-style:italic;">manually email this to me please</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- POPUP MODALS -->
+    <div id="motivationModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalDate">NOVEMBER 01</h2>
+            <p style="color:var(--accent-peach); font-size:0.8rem; letter-spacing:1px; text-transform:uppercase; font-weight:700;">Reflection</p>
+            <p id="modalStatus" style="color:#fff; margin-bottom:20px;"></p>
+            <p style="color:var(--accent-peach); font-size:0.8rem; letter-spacing:1px; text-transform:uppercase; font-weight:700;">Action</p>
+            <p id="modalDistraction" style="color:#ddd; margin-bottom:20px;"></p>
+            <div style="background:rgba(0,0,0,0.3); border-left:3px solid var(--accent-red); padding:10px; font-style:italic; font-size:0.9rem; color:#ccc;" id="modalFact"></div>
+            <button class="close-button" onclick="closeModalAndRate()">I'm Ready to Check In</button>
+        </div>
+    </div>
+    
+    <!-- CONGRATS MODAL (Delayed trigger) -->
+    <div id="claimModal" class="modal">
+        <div class="modal-content">
+            <h2>🎉 You are Fantastic!</h2>
+            <p style="color:#eee; margin-bottom:20px;">Be proud of yourself, seriously be very proud, you achieved today, well done, your future self is going to thank you. Come back tomorrow to unlock another sober day!</p>
+            <p style="color:#9ca3af; font-size:0.9rem; font-style:italic; margin-bottom:20px;">
+                Check the "Daily Wisdom" section if you need a reminder or a reason to defend not drinking today or tomorrow.
+            </p>
+            <button onclick="closeClaimModalAndScrollToFacts()" class="close-button">Read some Facts</button>
+        </div>
+    </div>
+    
+    <div id="warningModal" class="modal">
+        <div class="modal-content" style="border-color:var(--accent-red);">
+            <h2 style="color:var(--accent-red);">⛔ Hold On!</h2>
+            <p id="warning-msg" style="color:#eee; margin-bottom:20px;"></p>
+            <button onclick="document.getElementById('warningModal').style.display='none'" class="close-button">Okay</button>
+        </div>
+    </div>
+    
+    <!-- CHEATED MODAL -->
+    <div id="cheatedModal" class="modal">
+        <div class="modal-content" style="border-color: var(--accent-red); position: relative; min-height: 350px; display: flex; flex-direction: column; justify-content: center;">
+            <h2 style="color: var(--accent-red);">Commitment Check</h2>
+            <p style="color:#eee; margin-bottom:20px; line-height: 1.6;">
+                <b>Donate £10</b> to charity or buy a friend or family member that has been supportive a nice present. Also add this day to the end of your month as an extra day regardless of your plans, and recommit to your future self immediately. You can do this but it takes effort after a while it will be become easier.
+            </p>
+            <button id="cheat-continue-btn" onclick="closeCheatedModal()" class="close-button" style="background: var(--accent-red); color: white;">Continue Journey</button>
+        </div>
+    </div>
+
+    <!-- GRAND FINALE OVERLAY (UPDATED) -->
+    <div id="grand-finale-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9999; flex-direction:column; justify-content:center; align-items:center; text-align: center; padding: 20px;">
+        <div class="oversized-cup cup-left">🏆</div>
+        <div class="oversized-cup cup-right">🏆</div>
+        
+        <h1 style="color:var(--accent-gold); text-shadow:0 0 30px var(--accent-gold); margin: 0; font-size: 3rem; z-index: 10003;">CHALLENGE COMPLETE</h1>
+        <p id="final-sober-count" style="color:white; font-size:1.5rem; margin: 20px 0; z-index: 10003;">You stayed sober for 30 Days! Congratulations!</p>
+        
+        <div id="final-cheat-section" style="display:none; margin-top: 10px; max-width: 600px; z-index: 10003;">
+            <p id="final-cheat-count" style="color: var(--accent-red); font-weight: bold; font-size: 1.1rem; margin-bottom: 5px;">0 Cheat Days Recorded</p>
+            <p style="color: #ffcccc; font-size: 0.9rem; line-height: 1.4;">
+                You need to hold yourself accountable. Please donate <span id="final-charity-amount">£0</span> to charity or buy equivalent gifts for supportive friends/family. 
+                Consider adding these as extra days starting tomorrow to truly complete your journey.
+            </p>
+        </div>
+
+        <!-- Monthly Vitality Graph Container -->
+        <div class="final-graph-container" id="final-month-graph">
+            <!-- Bars injected by JS -->
+        </div>
+
+        <button id="finale-close-btn" onclick="closeFinale()" style="display: none; margin-top: 40px; background: transparent; border: 1px solid #555; color: #888; padding: 5px 10px; border-radius: 5px; cursor: pointer; z-index: 10003;">✕ Return to Dashboard</button>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const motivations = {
+            1: { status: "Day 1. You chose yourself today.", distraction: "Visualise yourself waking up tomorrow feeling fresh.", fact: "The liver begins to repair itself within 24 hours." },
+            2: { status: "Day 2. Momentum is building.", distraction: "Think about the money you saved today.", fact: "Alcohol disrupts REM sleep. Tonight, you might actually dream." },
+            3: { status: "Day 3. Physical withdrawal peaks.", distraction: "Visualise your skin looking clearer.", fact: "After 72 hours, the body is 100% alcohol-free." },
+            4: { status: "Day 4. Reclaiming evenings.", distraction: "Make herbal tea. 'I am healing'.", fact: "Anxiety spikes are temporary. You are breaking the cycle." },
+            5: { status: "Day 5. Body gratitude.", distraction: "Wear comfortable clothes. Feel the fabric.", fact: "Immune system is strengthening." },
+            6: { status: "Day 6. Clear weekend ahead.", distraction: "Walk into a room looking healthier.", fact: "Alcohol is a Class 1 carcinogen." },
+            7: { status: "One Week. Victory.", distraction: "Check your bank account.", fact: "Blood pressure improves significantly." },
+            8: { status: "Week 2. Proving them wrong.", distraction: "Visualise your future self: calm.", fact: "Brain frontal lobes are healing." },
+            9: { status: "Day 9. Clarity.", distraction: "Engage in a hobby.", fact: "Liver fat is reducing." },
+            10: { status: "Double Digits.", distraction: "Watch a movie you'll remember.", fact: "You are choosing life." },
+            11: { status: "Day 11. Habits shifting.", distraction: "Neurons are forging new pathways.", fact: "Nutrient absorption is improving." },
+            12: { status: "Day 12. Bright eyes.", distraction: "Look at nature.", fact: "Heart is pumping efficiently." },
+            13: { status: "Day 13. Real connection.", distraction: "Call a friend.", fact: "Natural joy is returning." },
+            14: { status: "Two Weeks. Unrecognizable.", distraction: "Buy a small gift.", fact: "Accident risk dropped dramatically." },
+            15: { status: "Halfway.", distraction: "Visualise a golden shield.", fact: "Brain damage is reversing." },
+            16: { status: "Day 16. Stronger than cravings.", distraction: "Breathe deep. Freedom.", fact: "Stomach lining healed." },
+            17: { status: "Day 17. Waking up happy.", distraction: "Plan a nice breakfast.", fact: "Skin elasticity improving." },
+            18: { status: "Day 18. Emotional stability.", distraction: "Stress is just a cloud.", fact: "Cortisol levels stabilizing." },
+            19: { status: "Day 19. Finding yourself.", distraction: "Write gratitude.", fact: "Cancer risk decreasing." },
+            20: { status: "Day 20. Home stretch.", distraction: "Look at old photos with love.", fact: "Cognitive speed improving." },
+            21: { status: "Three Weeks. Habit formed.", distraction: "Rearrange your room.", fact: "Liver enzymes normalizing." },
+            22: { status: "Day 22. Mastery.", distraction: "Climb the mountain.", fact: "Empty calories saved." },
+            23: { status: "Day 23. Peace.", distraction: "Listen to calm music.", fact: "Restorative sleep." },
+            24: { status: "Day 24. Gratitude.", distraction: "Better partner/friend.", fact: "Modeling strength." },
+            25: { status: "Day 25. Resilience.", distraction: "Laugh at cravings.", fact: "Cell regeneration." },
+            26: { status: "Day 26. Almost there.", distraction: "Plan a celebration.", fact: "Dopamine normalizing." },
+            27: { status: "Day 27. Confidence.", distraction: "Stand tall.", fact: "27 days of no hangovers." },
+            28: { status: "Day 28. Endurance.", distraction: "Herbal tea ritual.", fact: "Self-esteem rising." },
+            29: { status: "Day 29. One step left.", distraction: "Prepare for history.", fact: "Depression risk lowers." },
+            30: { status: "VICTORY.", distraction: "You are free.", fact: "You have your life back." }
+        };
+
+        const dailyQuotes = [
+            { text: "Start where you are. Use what you have. Do what you can.", author: "Arthur Ashe" },
+            { text: "You have power over your mind - not outside events. Realise this, and you will find strength.", author: "Marcus Aurelius" },
+            { text: "First you take a drink, then the drink takes a drink, then the drink takes you.", author: "F. Scott Fitzgerald" },
+            { text: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", author: "Aristotle" },
+            { text: "Drunkenness is nothing but voluntary madness.", author: "Seneca" },
+            { text: "Believe you can and you're halfway there.", author: "Roosevelt" },
+            { text: "Sobriety delivers what alcohol promised.", author: "Unknown" },
+            { text: "Turn your wounds into wisdom.", author: "Oprah" },
+            { text: "Predict the future by creating it.", author: "Drucker" },
+            { text: "Do what you can.", author: "Roosevelt" },
+            { text: "Focus to see the light.", author: "Aristotle" },
+            { text: "Act as if it makes a difference.", author: "William James" },
+            { text: "One is too many.", author: "Unknown" },
+            { text: "Become more by achieving goals.", author: "Ziglar" },
+            { text: "Do what you think you cannot do.", author: "Eleanor Roosevelt" },
+            { text: "Limit your always and nevers.", author: "Amy Poehler" },
+            { text: "Lift up someone else.", author: "Booker T. Washington" },
+            { text: "Dream a new dream.", author: "C.S. Lewis" },
+            { text: "Doubts limit tomorrow.", author: "FDR" },
+            { text: "Face the sunshine.", author: "Whitman" },
+            { text: "Change your thoughts.", author: "Peale" },
+            { text: "Never too late.", author: "George Eliot" },
+            { text: "Judge by seeds planted.", author: "Stevenson" },
+            { text: "Believe in your dreams.", author: "Eleanor Roosevelt" },
+            { text: "Involve me and I learn.", author: "Franklin" },
+            { text: "Felt with the heart.", author: "Keller" },
+            { text: "Leave a trail.", author: "Emerson" },
+            { text: "Difficulty brings opportunity.", author: "Einstein" },
+            { text: "Life is what happens.", author: "Lennon" },
+            { text: "Spread love.", author: "Mother Teresa" },
+            { text: "The only true wisdom is in knowing you know nothing.", author: "Socrates" }
+        ];
+
+        const realityDatabase = {
+            physical: ["Alcohol is a Group 1 carcinogen.", "Shrinks the hippocampus.", "Causes liver cirrhosis.", "Weakens immune system.", "Raises blood pressure."],
+            mental: ["Depressant that induces sadness.", "Hangxiety spikes cortisol.", "Increases risk of self-harm.", "Impairs judgement.", "Blocks memory formation."],
+            social: ["Involved in 40% of violent crimes.", "Costs £3,000/year avg.", "Leading cause of divorce.", "DUI risks.", "Loss of trust."]
+        };
+
+        const regrets = [
+            "👻 I wish I hadn't said that", "👻 Why did I spend that", "👻 I missed the morning", 
+            "👻 I wasn't listening", "👻 I lost a whole day", "👻 The shame", "👻 Never again", 
+            "👻 Hangxiety is real", "👻 Just one more", "👻 I forgot the end", "👻 Why did I argue",
+            "👻 If only I hadn't sent that text", "👻 Why did I spend that much", "👻 I wasn't present for them",
+            "👻 I wish I felt fresher today", "👻 The hangover wasn't worth it", "👻 I thought I was clever",
+            "👻 So much money wasted", "👻 I can't remember last night", "👻 OMG what did I do",
+            "👻 No no no why did I do that", "👻 Ouch I really hurt myself", "👻 Im not going to drink today",
+            "👻 Im never drinking again", "👻 I hate myself for yesterday", "👻 I bet they are judging me",
+            "👻 I need a drink to feel normal", "👻 What do they think of me", "👻 Paranoia is setting in",
+            "👻 I can't do anything right", "👻 Everything feels twice as hard", "👻 Guilt is eating me alive",
+            "👻 Just one drink? Never just one", "👻 I'm dreading facing the world",
+            "👻 My head is pounding", "👻 Did I really do that", "👻 I feel so anxious", "👻 I wasted the weekend",
+            "👻 I let them down", "👻 Why can't I stop", "👻 I look terrible", "👻 My skin is so dry",
+            "👻 I'm always tired", "👻 I missed the gym again", "👻 Fast food at 3am... why", "👻 I lost my phone",
+            "👻 Who did I call", "👻 Check sent messages... oh no", "👻 I need to apologise", "👻 The fear is real",
+            "👻 My bank balance is zero", "👻 I'm hiding away", "👻 I feel toxic", "👻 Brain fog is heavy",
+            "👻 I missed the sunrise", "👻 I was so rude", "👻 I ruined the mood", "👻 They are disappointed",
+            "👻 I am disappointed", "👻 Start again tomorrow", "👻 I can't focus", "👻 My memory is shot", 
+            "👻 I feel bloated", "👻 Oh god I feel sick", "👻 I can't believe I did that yet again",
+            "👻 I hate my life right now", "👻 What excuse can I say to get out of work",
+            "👻 Oh no I don't want to phone in sick", "👻 That last round cost a fortune",
+            "👻 I got a taxi when I could have used the bus", "👻 I hope they don't remember what I said",
+            "👻 Felt good last night, feel awful now", "👻 I dread seeing them again",
+            "👻 I bet everyone hates me now", "👻 Why did I drink that shot",
+            "👻 My anxiety is through the roof", "👻 I'm never drinking again (lie)",
+            "👻 I dropped my phone", "👻 Why did I say all those horrible things",
+            "👻 I spent all my spare cash last night", "👻 God do I have no self control",
+            "👻 I just wished I had stopped earlier", "👻 Jeez have I no self control and no shame",
+            "👻 The daylight is so bright it hurts", "👻 I fell over and hurt myself last night",
+            "👻 I almost got into a fight last night",
+            "👻 I'm getting a bad reputation", "👻 I can't remember what happened",
+            "👻 Why did I text my ex", "👻 I feel so ashamed", "👻 My friends are worried about me",
+            "👻 I lost my keys again", "👻 I woke up on the floor", "👻 What did I post on social media",
+            "👻 I can't look at my bank account", "👻 I need to get it together", "👻 Is this who I want to be",
+            "👻 I ruined the party", "👻 Everyone was staring at me", "👻 I feel so lonely today",
+            "👻 I missed a deadline", "👻 I am worried I might have said the wrong thing", 
+            "👻 I hope I didn't upset them", "👻 I got over confident and pretended",
+            "👻 Oh god another day of damage limitation", "👻 All those hollow calories making me fat",
+            "👻 Why oh why did I do that yesterday",
+            // NEWLY ADDED CENSORED ONES
+            "👻 Oh f*ck what have I done!", "👻 Sh!t, not again!", "👻 F***ing hell my head hurts!",
+            "👻 Why the h*ll did I drink?", "👻 Holy sh!t I spent so much"
+        ];
+
+        // --- STATE MANAGEMENT ---
+        let highestUnlockedDay = 1;
+        let currentDayInView = 0;
+        let dailyRatings = {};
+        let openedWeeks = [1];
+        let lastUnlockTime = 0;
+        let currentWisdomIndex = 0;
+        let claimedDays = {}; 
+        let realityIndex = { physical: 0, mental: 0, social: 0 };
+        let cheatBtnInterval; // To hold the timer ID
+        let ghostInterval; // To manage ghost spawning
+
+        // --- INIT ---
+        window.onload = function() {
+            // FIX: Clean slate on EVERY reload as requested
+            localStorage.removeItem('noVemberData_CleanSlate');
+            
+            loadState();
+            initGhosts();
+            renderCalendar();
+            updateFocusGuidance();
+            
+            for(let i=1; i<=4; i++) {
+                if(openedWeeks.includes(i) || i === 1) renderWeeklyGraph(i);
+            }
+            
+            document.getElementById('skipCheckInToggle').addEventListener('change', () => {
+                if(currentDayInView > 0) updateClaimButton();
+            });
+        };
+
+        function saveState() {
+            const state = {
+                highestUnlockedDay, dailyRatings, openedWeeks, lastUnlockTime, claimedDays
+            };
+            // UPDATED STORAGE KEY FOR MASTER RESET V3
+            localStorage.setItem('noVemberData_CleanSlate', JSON.stringify(state));
+        }
+
+        function loadState() {
+            const saved = localStorage.getItem('noVemberData_CleanSlate');
+            if (saved) {
+                const data = JSON.parse(saved);
+                highestUnlockedDay = data.highestUnlockedDay || 1;
+                dailyRatings = data.dailyRatings || {};
+                openedWeeks = data.openedWeeks || [1];
+                lastUnlockTime = data.lastUnlockTime || 0;
+                claimedDays = data.claimedDays || {};
+            } else {
+                // Defaults if new key
+                highestUnlockedDay = 1;
+                dailyRatings = {};
+                openedWeeks = [1];
+                claimedDays = {};
+            }
+        }
+        
+        function getBritishDate(day) {
+            const suffixes = ["th", "st", "nd", "rd"];
+            const v = day % 100;
+            const suffix = suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0];
+            return `${day}${suffix} NOVEMBER`;
+        }
+
+        function clearProgress() {
+            if(confirm("Reset all progress?")) {
+                localStorage.removeItem('noVemberData_CleanSlate');
+                location.reload();
+            }
+        }
+
+        function renderCalendar() {
+            // Determine which day gets the 'next-step' class based on CLAIMED state
+            let maxClaimed = 0;
+            const claimedIndices = Object.keys(claimedDays).map(Number);
+            if (claimedIndices.length > 0) {
+                maxClaimed = Math.max(...claimedIndices);
+            }
+            const nextStepDay = maxClaimed + 1;
+
+            document.querySelectorAll('.calendar-day').forEach(el => {
+                const day = parseInt(el.getAttribute('data-day'));
+                
+                // Clean up old next-step class first
+                el.classList.remove('next-step');
+
+                if (day <= highestUnlockedDay && day > 1) { 
+                   if (dailyRatings[day-1]) el.classList.add('unlocked');
+                }
+                if (day < highestUnlockedDay) el.classList.add('opened', 'unlocked');
+                
+                // Apply jiggle only to the day AFTER the last claimed day
+                if (day === nextStepDay) {
+                      el.classList.add('next-step');
+                }
+            });
+
+            openedWeeks.forEach(weekNum => {
+                const w = document.getElementById(`week-${weekNum}`);
+                if(w) w.style.display = 'grid';
+                if (weekNum > 1) {
+                    const prevMilestone = document.getElementById(`milestone-${weekNum-1}`);
+                    if(prevMilestone) {
+                        prevMilestone.classList.add('opened');
+                        prevMilestone.innerHTML = "Week<br>Complete! 🏆";
+                    }
+                }
+            });
+            
+            if(currentDayInView > 0) updateClaimButton();
+            
+            // Fixed Singular/Plural Logic
+            const count = Object.values(claimedDays).filter(v => v === true).length;
+            const cheatCount = Object.values(claimedDays).filter(v => v === 'cheated').length;
+            const btn = document.getElementById('btn-claim-day');
+            const label = count === 1 ? "Day" : "Days";
+            
+            // Update header stats
+            document.getElementById('lbl-sober-count').innerText = count;
+            document.getElementById('lbl-cheat-count').innerText = cheatCount;
+            
+            if (!currentDayInView) {
+                btn.innerText = `🥇 ${count} Sober ${label} Achieved`;
+                btn.className = "claim-btn btn-locked"; 
+            }
+        }
+        
+        function updateFocusGuidance() {
+             const ledSteps = document.getElementById('led-steps');
+             const ledCheckin = document.getElementById('led-checkin');
+             
+             const needsClaiming = currentDayInView > 0 && 
+                                   currentDayInView <= highestUnlockedDay && 
+                                   !claimedDays[currentDayInView];
+             
+             if (needsClaiming) {
+                 ledSteps.className = 'dot led-off';
+                 ledCheckin.className = 'dot led-active'; 
+             } else {
+                 ledSteps.className = 'dot led-active'; 
+                 ledCheckin.className = 'dot led-off';
+             }
+        }
+        
+        function stopLedFlashing() {
+             // Target ALL dots in headers to turn them off permanently
+             const dots = document.querySelectorAll('.dot');
+             dots.forEach(dot => {
+                 dot.className = 'dot led-disabled'; 
+             });
+        }
+
+        // --- CORE LOGIC ---
+        function checkUnlock(dayNumber) {
+            dayNumber = parseInt(dayNumber);
+            const debugWait = document.getElementById('debugSkipWaitToggle').checked;
+            const debugCheckIn = document.getElementById('skipCheckInToggle').checked;
+
+            if (dayNumber === 1) return true;
+
+            const cooldown = 60 * 1000; 
+            const now = Date.now();
+            if (dayNumber > highestUnlockedDay && !debugWait && (now - lastUnlockTime < cooldown) && dayNumber > 1) {
+                showWarning("⏳ Patience! You must wait until tomorrow.");
+                return false;
+            }
+            if (dayNumber > highestUnlockedDay + 1) {
+                showWarning("⛔ You must complete the days in order.");
+                return false;
+            }
+            const prevDay = dayNumber - 1;
+            const prevRatings = dailyRatings[prevDay];
+            
+            if (!prevRatings && !debugCheckIn) {
+                 showWarning("⭐ You must rate yesterday's progress first!");
+                 return false;
+            }
+            // Ensure previous day was either claimed OR marked as cheated (which sets claimedDays[d] = true/cheated)
+            if (!claimedDays[prevDay] && !debugCheckIn) {
+                showWarning("🏆 You must claim your medal for yesterday first!");
+                return false;
+            }
+            return true;
+        }
+
+        function unlockDay(el) {
+            const dayNum = parseInt(el.getAttribute("data-day"));
+            if (el.classList.contains('opened')) {
+                openModal(dayNum);
+                return;
+            }
+            if (!checkUnlock(dayNum)) return;
+
+            lastUnlockTime = Date.now();
+            highestUnlockedDay = Math.max(highestUnlockedDay, dayNum);
+            
+            el.classList.add("opened", "unlocked");
+            
+            // Explicitly clear stars immediately upon new unlock to prevent ghosting
+            resetStarsUI();
+
+            if(dayNum % 7 === 0) {
+                 const weekNum = dayNum / 7;
+                 const btn = document.getElementById(`milestone-${weekNum}`);
+                 if(btn) btn.classList.add('week-ready');
+            }
+
+            confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+            saveState();
+            openModal(dayNum);
+            updateFocusGuidance();
+        }
+
+        function openModal(day) {
+            currentDayInView = day;
+            const d = motivations[day] || motivations[1]; 
+            
+            // Use helper function for British Date
+            document.getElementById('modalDate').textContent = getBritishDate(day);
+            document.getElementById('modalStatus').textContent = d.status;
+            document.getElementById('modalDistraction').textContent = d.distraction;
+            document.getElementById('modalFact').textContent = d.fact;
+            document.getElementById('motivationModal').style.display = 'flex';
+            
+            updateClaimButton();
+        }
+
+        function closeModalAndRate() {
+            document.getElementById('motivationModal').style.display = 'none';
+            if(window.innerWidth < 900) {
+                document.getElementById('stats-panel').scrollIntoView({behavior:'smooth'});
+            }
+            
+            // Unlock stars visual
+            document.querySelector('.stats-grid').classList.remove('locked-stars');
+            
+            updateFocusGuidance();
+
+            // Strict check: Only pre-fill stars if we have data for THIS specific day.
+            // Otherwise, clear them.
+            if (dailyRatings[currentDayInView]) {
+                ['clarity', 'energy', 'positivity', 'confidence'].forEach(m => {
+                    updateStarVisuals(m, dailyRatings[currentDayInView][m]);
+                });
+            } else {
+                resetStarsUI();
+            }
+        }
+
+        function resetStarsUI() {
+            document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
+        }
+
+        function setScore(metric, val) {
+            if (!dailyRatings[currentDayInView]) dailyRatings[currentDayInView] = {};
+            dailyRatings[currentDayInView][metric] = val;
+            updateStarVisuals(metric, val);
+            const r = dailyRatings[currentDayInView];
+            if (r.clarity && r.energy && r.positivity && r.confidence) {
+                unlockWisdom();
+                saveState();
+                const weekNum = Math.ceil(currentDayInView / 7);
+                renderWeeklyGraph(weekNum);
+            }
+        }
+
+        function updateStarVisuals(metric, val) {
+            const container = document.querySelector(`.stars-container[data-metric="${metric}"]`);
+            const stars = container.querySelectorAll('.star');
+            stars.forEach((s, i) => {
+                if (i < val) s.classList.add('active');
+                else s.classList.remove('active');
+            });
+        }
+
+        function unlockWisdom() {
+            const q = dailyQuotes[currentDayInView-1] || dailyQuotes[0];
+            document.getElementById('quote-text').innerText = `"${q.text}"`;
+            document.getElementById('quote-text').style.color = "#fff";
+            document.getElementById('quote-text').style.fontStyle = "italic";
+            document.getElementById('quote-author').innerText = `- ${q.author}`;
+            document.getElementById('daily-quote').classList.add('unlocked-gold');
+            document.getElementById('btn-quote-prev').disabled = false;
+            document.getElementById('btn-quote-next').disabled = false;
+            updateClaimButton();
+        }
+
+        function updateClaimButton() {
+            const btn = document.getElementById('btn-claim-day');
+            const cheatBtn = document.getElementById('btn-cheated');
+            const skipCheckIn = document.getElementById('skipCheckInToggle').checked;
+            
+            const r = dailyRatings[currentDayInView];
+            const isRated = r && r.clarity && r.energy && r.positivity && r.confidence;
+            const isClaimed = claimedDays[currentDayInView];
+            
+            btn.className = "claim-btn";
+            btn.onclick = null; 
+            cheatBtn.style.display = 'none';
+
+            if (isClaimed) {
+                btn.classList.add('btn-claimed');
+                // Calculate valid count
+                const count = Object.values(claimedDays).filter(v => v === true).length;
+                const label = count === 1 ? "Day" : "Days";
+                btn.innerText = `🥇 ${count} Sober ${label} Achieved`;
+            } else if (isRated || skipCheckIn) {
+                btn.classList.add('btn-ready');
+                btn.innerText = `Click to Claim a Sober Day 🥇`;
+                btn.onclick = claimDay;
+                cheatBtn.style.display = 'inline-block'; 
+            } else {
+                btn.classList.add('btn-locked');
+                btn.innerText = `Rate Day ${currentDayInView} Above to Unlock 👆`;
+            }
+        }
+        
+        function claimDay() {
+            // Guard clause to prevent clicking when no day is selected (Day 0)
+            if (currentDayInView <= 0) return;
+            if (claimedDays[currentDayInView]) return;
+
+            const btn = document.getElementById('btn-claim-day');
+            
+            // 1. Immediate Visual Update
+            btn.classList.remove('btn-ready');
+            btn.classList.add('btn-claimed');
+            
+            // 2. Data Update
+            claimedDays[currentDayInView] = true;
+            // Count ONLY valid sober days (true), excluding 'cheated'
+            const newCount = Object.values(claimedDays).filter(v => v === true).length;
+            const label = newCount === 1 ? "Day" : "Days";
+            
+            // Show total count immediately
+            btn.innerText = `🥇 ${newCount} Sober ${label} Achieved`;
+            
+            saveState();
+            
+            document.getElementById('btn-cheated').style.display = 'none';
+            
+            // Switch LEDs back to calendar
+            updateFocusGuidance();
+            
+            // Check if this completes a week (multiple of 7)
+            if (currentDayInView % 7 === 0) {
+                const weekNum = currentDayInView / 7;
+                unlockWeek(weekNum, weekNum + 1);
+            }
+            
+            // Force re-render to move jiggle
+            renderCalendar();
+            
+            // Adjust scroll to top area logic to focus on dashboard
+            document.querySelector('.dashboard-container').scrollIntoView({behavior: 'smooth', block: 'start'});
+
+            // SPECIAL: If Day 30 is being claimed, go straight to Grand Finale, SKIP normal modal
+            if (currentDayInView === 30) {
+                stopLedFlashing(); // STOP FLASHING NOW
+                setTimeout(() => {
+                    confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
+                    showGrandFinale();
+                }, 800);
+                return;
+            }
+
+            // Normal days flow
+            setTimeout(() => {
+                const claimModal = document.getElementById('claimModal');
+                claimModal.style.display = 'flex';
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            }, 1000);
+        }
+        
+        function showGrandFinale() {
+            stopLedFlashing(); // Ensure stopped
+            const overlay = document.getElementById('grand-finale-overlay');
+            const soberCountEl = document.getElementById('final-sober-count');
+            const cheatSection = document.getElementById('final-cheat-section');
+            const cheatCountEl = document.getElementById('final-cheat-count');
+            const charityAmountEl = document.getElementById('final-charity-amount');
+            const closeBtn = document.getElementById('finale-close-btn');
+            const graphContainer = document.getElementById('final-month-graph');
+
+            // Recalculate stats including Day 30 which was just claimed
+            const totalSober = Object.values(claimedDays).filter(v => v === true).length;
+            const totalCheated = Object.values(claimedDays).filter(v => v === 'cheated').length;
+
+            soberCountEl.innerHTML = `You stayed sober for <span style="color:var(--accent-teal); font-size: 2rem;">${totalSober}</span> Days<br>Congratulations!`;
+
+            if (totalCheated > 0) {
+                cheatSection.style.display = 'block';
+                cheatCountEl.innerText = `⚠️ You had ${totalCheated} Cheat Day${totalCheated === 1 ? '' : 's'}`;
+                charityAmountEl.innerText = `£${totalCheated * 10}`;
+            } else {
+                cheatSection.style.display = 'none';
+            }
+
+            // GENERATE FINAL MONTHLY GRAPH
+            renderMonthSummaryGraph(graphContainer);
+
+            overlay.style.display = 'flex';
+            
+            // --- 1. Alternating Confetti Sequence (7 Seconds loop) ---
+            launchConfettiSequence();
+
+            // --- 2. Oversized Emoji Rain (Without Strong Arm) ---
+            rainEmojis();
+            
+            // --- 3. Extended Ghost Sequence: 30 seconds of spawning ---
+            let count = 0;
+            const finaleGhostInterval = setInterval(() => {
+                // Spawn a new ghost
+                const el = spawnRegret(true); // Pass true to indicate finale mode
+                // Schedule it to explode
+                setTimeout(() => {
+                     explodeGhost(el);
+                }, 2500); // Drift for 2.5s then start explosion
+                
+                count++;
+                // Stop spawning after 30 seconds (approx 40 ghosts)
+                if(count > 40) clearInterval(finaleGhostInterval);
+            }, 400); // Increased spawn rate: every 400ms to "double up" quantity
+
+            // Show close button after 5 seconds
+            setTimeout(() => {
+                closeBtn.style.display = 'inline-block';
+                closeBtn.style.opacity = '0';
+                // fade in
+                let op = 0;
+                let timer = setInterval(function () {
+                    if (op >= 1){
+                        clearInterval(timer);
+                    }
+                    closeBtn.style.opacity = op;
+                    closeBtn.style.filter = 'alpha(opacity=' + op * 100 + ")";
+                    op += 0.1;
+                }, 50);
+            }, 5000);
+        }
+        
+        function closeFinale() {
+            document.getElementById('grand-finale-overlay').style.display='none';
+            
+            // Also show the graph on the dashboard
+            const dbContainer = document.getElementById('dashboard-month-bars');
+            const mainContainer = document.getElementById('graph-month-summary');
+            
+            renderMonthSummaryGraph(dbContainer);
+            mainContainer.style.display = 'block'; // Make it visible
+            
+            // Add pulsating class to container
+            dbContainer.classList.add('unlocked-gold'); // Re-using the gold pulse anim
+            
+            // Move Month Graph to the END of container to ensure it is on TOP (due to column-reverse)
+            const graphsContainer = document.getElementById('graphs-container');
+            // CHANGE: Append to START of container to make it appear BELOW Week 5 (since column-reverse)
+            // If column-reverse: Last child is at TOP. First child is at BOTTOM.
+            // User asked for "below week 5". 
+            // Currently: Week 1 (top in code) -> Bottom visually. Week 5 (bottom in code) -> Top visually.
+            // So to put it BELOW week 5 (which is visually top), we need to insert it *before* week 5 in DOM order.
+            // Wait, if column-reverse:
+            // DOM: [W1, W2, W3, W4, W5]. Visual: [W5, W4, W3, W2, W1]
+            // We want Visual: [W5, MonthGraph, W4...] ? No, "below week 5 vitality panel (at the top of the vitality panels)"
+            // Wait, "below week 5 vitality" usually means visually lower.
+            // If visual is W5 at top, then below W5 is W4.
+            // But request says "put that above week 5 Vitality panel (at the top of the vitality panels)".
+            // Conflicting request "below week 5" and "at the top of the vitality panels".
+            // Let's assume "Top of visual stack".
+            // Visual Stack: [MonthGraph, W5, W4, W3, W2, W1].
+            // In column-reverse, this means MonthGraph must be LAST in DOM.
+            graphsContainer.appendChild(mainContainer);
+
+            // Scroll to it
+            mainContainer.scrollIntoView({behavior: 'smooth'});
+
+            // Trigger ghost explosions AFTER closing finale
+            triggerGhostExplosions();
+            
+            // Change Regret Panel Content
+            document.querySelector('.regret-title').innerText = "THE WINNER OF CURRENT SUCCESS";
+            document.getElementById('regret-trophy-container').style.display = "flex";
+            
+            // Clean up remaining static ghosts if any
+             document.querySelectorAll('.regret-ghost').forEach(el => {
+                if(!el.classList.contains('ghost-exploding')) el.remove();
+            });
+        }
+        
+        function closeClaimModalAndScrollToFacts() {
+            document.getElementById('claimModal').style.display = 'none';
+            document.getElementById('regret-panel').scrollIntoView({behavior: 'smooth'});
+        }
+        
+        function renderMonthSummaryGraph(container) {
+            container.innerHTML = '';
+            const ranges = [
+                {start: 1, end: 7, label: 'W1'},
+                {start: 8, end: 14, label: 'W2'},
+                {start: 15, end: 21, label: 'W3'},
+                {start: 22, end: 28, label: 'W4'},
+                {start: 29, end: 30, label: 'W5'}
+            ];
+
+            ranges.forEach(range => {
+                let totalScore = 0;
+                let count = 0;
+                for(let d = range.start; d <= range.end; d++) {
+                    const r = dailyRatings[d];
+                    if (r) {
+                        // Average the 4 metrics for that day
+                        const dayAvg = (r.clarity + r.energy + r.positivity + r.confidence) / 4;
+                        totalScore += dayAvg;
+                        count++;
+                    }
+                }
+                // Determine bar height (max 5 stars)
+                let avg = count > 0 ? (totalScore / count) : 0;
+                let heightPct = (avg / 5) * 100;
+                
+                const bar = document.createElement('div');
+                bar.className = 'final-bar';
+                // If no data, show tiny bar
+                bar.style.height = heightPct > 0 ? `${heightPct}%` : '4px'; 
+                // Color logic
+                if (avg > 4) bar.style.background = '#4FD1C5'; // Teal
+                else if (avg > 2.5) bar.style.background = '#FFD700'; // Gold
+                else bar.style.background = '#FF9F68'; // Peach (or default low)
+                
+                bar.innerHTML = `<span>${range.label}</span>`;
+                container.appendChild(bar);
+            });
+        }
+
+        function launchConfettiSequence() {
+            // Helper for specific bursts
+            const fire = (particleRatio, opts) => {
+                confetti(Object.assign({}, { 
+                    origin: { y: 0.7 },
+                    zIndex: 10005 // Increased Z-Index
+                }, opts, {
+                    particleCount: Math.floor(200 * particleRatio)
+                }));
+            };
+
+            let count = 0;
+            // Run roughly 9 times over 7 seconds (approx 800ms interval)
+            const interval = setInterval(() => {
+                if (count >= 9) { clearInterval(interval); return; }
+                
+                const isGold = count % 2 !== 0; // Even = Colorful, Odd = Gold
+                const colors = isGold ? ['#FFD700', '#FFA500', '#FFFFFF'] : undefined; // undefined defaults to colorful
+                
+                // Extra gold burst
+                if(isGold) {
+                     fire(1.0, { spread: 120, startVelocity: 60, colors: colors });
+                }
+                
+                fire(0.8, { spread: 60, startVelocity: 55, colors: colors });
+                fire(0.5, { spread: 100, colors: colors });
+                
+                count++;
+            }, 800); 
+        }
+
+        function rainEmojis() {
+            // Removed '💪' as requested
+            const emojis = ['🎺', '🐒', '🐵', '🙊', '🙈', '🙉', '🎉', '🥇', '💵', '🪙', '🧠', '🕺', '💃', '🚀'];
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const el = document.createElement('div');
+                    el.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                    el.style.position = 'fixed';
+                    el.style.left = (Math.random() * 90 + 5) + 'vw';
+                    el.style.top = '110vh';
+                    el.style.fontSize = (3 + Math.random() * 4) + 'rem'; // Oversized 3rem to 7rem
+                    el.style.zIndex = 10004; // High z-index
+                    el.style.transition = `transform ${3 + Math.random() * 2}s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 3s`;
+                    el.style.opacity = '1';
+                    el.style.pointerEvents = 'none';
+                    document.body.appendChild(el); 
+                    
+                    // Trigger Animation
+                    requestAnimationFrame(() => {
+                        el.style.transform = `translateY(-120vh) rotate(${Math.random() * 360 - 180}deg)`;
+                        // Start fading out near top
+                        setTimeout(() => { el.style.opacity = '0'; }, 1500);
+                    });
+                    
+                    // Cleanup DOM
+                    setTimeout(() => el.remove(), 6000);
+                }, i * 150); // Staggered start
+            }
+        }
+
+        function randomInRange(min, max) {
+          return Math.random() * (max - min) + min;
+        }
+        
+        function closeClaimModal() { document.getElementById('claimModal').style.display = 'none'; }
+        
+        function openCheatedModal() {
+            const btn = document.getElementById('btn-cheated');
+            // Visual feedback pulse
+            btn.style.transform = "scale(0.95)";
+            btn.style.background = "rgba(255,0,0,0.5)";
+            
+            // 0.5s Delay
+            setTimeout(() => {
+                // Reset button style (though modal covers it)
+                btn.style.transform = "scale(1)";
+                btn.style.background = "";
+                document.getElementById('cheatedModal').style.display = 'flex';
+                
+                // Trigger violent shake on modal content
+                const modalContent = document.querySelector('#cheatedModal .modal-content');
+                modalContent.classList.add('violent-shake');
+                
+                // Make Text Jitter
+                const title = document.querySelector('#cheatedModal h2');
+                title.classList.add('jittery-text');
+
+                // Remove class after animation so it can trigger again next time
+                setTimeout(() => {
+                    modalContent.classList.remove('violent-shake');
+                }, 2000);
+
+                 // NEW: Setup Runaway Button (Auto Move)
+                 const cheatBtn = document.getElementById('cheat-continue-btn');
+                 const modalBox = document.querySelector('#cheatedModal .modal-content');
+                 
+                 // Reset state
+                 cheatBtn.style.position = 'absolute';
+                 cheatBtn.style.transition = 'top 0.5s, left 0.5s';
+                 
+                 // Helper to move button
+                 const moveButton = () => {
+                     const contentRect = modalBox.getBoundingClientRect();
+                     const btnRect = cheatBtn.getBoundingClientRect();
+                     
+                     // available space
+                     const availableW = contentRect.width - btnRect.width - 40; 
+                     const availableH = contentRect.height - btnRect.height - 40;
+                     
+                     // Constrain to bottom half roughly
+                     const minH = contentRect.height / 2;
+                     
+                     const randomX = Math.random() * availableW + 20;
+                     const randomY = Math.max(minH, Math.random() * availableH + 20);
+                     
+                     cheatBtn.style.left = `${randomX}px`;
+                     cheatBtn.style.top = `${randomY}px`;
+                 };
+                 
+                 // Move immediately then every 600ms
+                 moveButton();
+                 cheatBtnInterval = setInterval(moveButton, 600);
+                
+            }, 500);
+        }
+        
+        function closeCheatedModal() {
+            document.getElementById('cheatedModal').style.display = 'none';
+            
+            // Stop Moving
+            clearInterval(cheatBtnInterval);
+            document.querySelector('#cheatedModal h2').classList.remove('jittery-text');
+            
+            // Mark as cheated (false or special string)
+            // We use 'cheated' string so it counts as "done" for unlocking next day,
+            // but we filter it out when counting medals.
+            claimedDays[currentDayInView] = 'cheated';
+            saveState();
+            
+            // Update UI to reflect day is done (but maybe no medal increment shown immediately)
+            const soberCount = Object.values(claimedDays).filter(v => v === true).length;
+            const label = soberCount === 1 ? "Day" : "Days";
+            const btn = document.getElementById('btn-claim-day');
+            
+            btn.classList.remove('btn-ready');
+            btn.classList.add('btn-claimed');
+            btn.innerText = `🥇 ${soberCount} Sober ${label} Achieved`; 
+            
+            document.getElementById('btn-cheated').style.display = 'none';
+            
+            // Force re-render of calendar to update Jiggle state
+            renderCalendar();
+            updateFocusGuidance();
+
+            // FIX: CHECK FOR DAY 30 HERE
+            if (currentDayInView === 30) {
+                stopLedFlashing();
+                setTimeout(() => {
+                    confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
+                    showGrandFinale();
+                }, 500);
+            }
+        }
+        
+        function reviewWisdom(dir) {
+            const maxIndex = Math.min(highestUnlockedDay, dailyQuotes.length) - 1;
+            if (currentWisdomIndex === undefined) currentWisdomIndex = currentDayInView - 1;
+            currentWisdomIndex += dir;
+            if (currentWisdomIndex < 0) currentWisdomIndex = 0;
+            if (currentWisdomIndex > maxIndex) currentWisdomIndex = maxIndex;
+            
+            const q = dailyQuotes[currentWisdomIndex];
+            document.getElementById('quote-text').innerText = `"${q.text}"`;
+            document.getElementById('quote-author').innerText = `- ${q.author}`;
+        }
+
+        function unlockWeek(currentWeek, nextWeek) {
+            const milestone = document.getElementById(`milestone-${currentWeek}`);
+            if (milestone) {
+                 milestone.classList.add('week-ready');
+            }
+        }
+        
+        // Handler for clicking the milestone button
+        function clickMilestone(currentWeek, nextWeek) {
+             const milestone = document.getElementById(`milestone-${currentWeek}`);
+             if (!milestone.classList.contains('week-ready') && !milestone.classList.contains('opened')) {
+                 showWarning("Complete all days in this week first!");
+                 return;
+             }
+             
+             milestone.classList.remove('week-ready');
+             milestone.classList.add('opened');
+             milestone.innerHTML = "Week<br>Complete! 🏆";
+             
+             // 1. Immediate Gold Confetti
+             confetti({
+                particleCount: 200,
+                spread: 120,
+                origin: { y: 0.6 },
+                colors: ['#FFD700', '#FFFF00', '#FFA500']
+             });
+
+             // 2. Immediate Overlay
+             const overlay = document.getElementById('weekly-win-overlay');
+             overlay.style.display = 'flex';
+             setTimeout(() => {
+                 overlay.style.display = 'none';
+             }, 3500);
+
+             // 3. Delayed MORE Gold Confetti (+1.5s)
+             setTimeout(() => {
+                 confetti({
+                    particleCount: 300,
+                    spread: 160,
+                    startVelocity: 45,
+                    origin: { y: 0.6 },
+                    colors: ['#FFD700', '#FFFF00', '#FFA500']
+                 });
+             }, 1500);
+             
+             // Show next week
+             const nextWeekEl = document.getElementById(`week-${nextWeek}`) || document.getElementById('week-final');
+             if (nextWeekEl) {
+                 nextWeekEl.style.display = 'grid';
+                 nextWeekEl.scrollIntoView({behavior:'smooth'});
+                 if(!openedWeeks.includes(nextWeek)) {
+                     openedWeeks.push(nextWeek);
+                     saveState();
+                 }
+             }
+             
+             // Also render graph
+             renderWeeklyGraph(currentWeek);
+        }
+
+        function renderWeeklyGraph(weekNum) {
+            const container = document.getElementById(`graph-week-${weekNum}`);
+            if(!container) {
+                const parent = document.getElementById('graphs-container');
+                const div = document.createElement('div');
+                div.id = `graph-week-${weekNum}`;
+                div.className = 'weekly-summary-graph';
+                div.innerHTML = `<div style="text-align:center; font-size:0.8rem; color:var(--accent-teal); margin-bottom:10px;">WEEK ${weekNum} VITALITY</div><div class="mini-graph-bars" id="bars-week-${weekNum}"></div>`;
+                parent.appendChild(div);
+            }
+            const barsContainer = document.getElementById(`bars-week-${weekNum}`);
+            barsContainer.innerHTML = '';
+            const startDay = (weekNum - 1) * 7 + 1;
+            for(let i=0; i<7; i++) {
+                let d = startDay + i;
+                let r = dailyRatings[d];
+                let height = 0; 
+                let color = "rgba(255,255,255,0.05)";
+                
+                // Strict check for RATING existence
+                if (r && (r.clarity || r.energy)) { 
+                    const avg = (r.clarity + r.energy + r.positivity + r.confidence) / 4;
+                    height = (avg / 5) * 100;
+                    color = avg > 4 ? '#4FD1C5' : (avg > 2 ? '#FFD166' : '#FF9F68');
+                }
+                
+                const bar = document.createElement('div');
+                bar.className = 'mini-bar';
+                bar.style.height = r ? `${height}%` : '0%'; 
+                bar.style.backgroundColor = color;
+                
+                // Only add 'empty' class if NO rating exists
+                if(!r) bar.classList.add('empty');
+                
+                barsContainer.appendChild(bar);
+            }
+            document.getElementById(`graph-week-${weekNum}`).style.display = 'block';
+        }
+
+        function reviewTruth(cat, dir) {
+            realityIndex[cat] += dir;
+            if(realityIndex[cat] < 0) realityIndex[cat] = realityDatabase[cat].length - 1;
+            if(realityIndex[cat] >= realityDatabase[cat].length) realityIndex[cat] = 0;
+            document.getElementById(`reality-${cat}`).innerText = realityDatabase[cat][realityIndex[cat]];
+            document.getElementById(`btn-${cat}-prev`).disabled = false;
+            document.getElementById(`btn-${cat}-next`).disabled = false;
+        }
+
+        function initGhosts() {
+            const panel = document.getElementById('regret-panel');
+            ghostInterval = setInterval(() => {
+                const count = panel.querySelectorAll('.regret-ghost').length;
+                if (count < 24) spawnRegret(); 
+            }, 400); 
+            for(let i=0; i<10; i++) setTimeout(spawnRegret, i*300);
+        }
+        
+        function triggerGhostExplosions() {
+            const ghosts = document.querySelectorAll('.regret-ghost');
+            // Stop spawning new ones
+            clearInterval(ghostInterval);
+            
+            const rewards = ['💰', '💵', '🏅', '🍀', '💯', '👍', '🫂', '🪙'];
+            
+            ghosts.forEach((ghost, index) => {
+                setTimeout(() => {
+                    explodeGhost(ghost);
+                }, index * 250); // Staggered start every 0.25s
+            });
+        }
+        
+        function explodeGhost(ghost) {
+            // 1. Find inner content to shake
+            const inner = ghost.querySelector('.regret-ghost-content');
+            const rewards = ['💰', '💵', '🏅', '🍀', '💯', '👍', '🫂', '🪙'];
+            
+            if(inner) {
+                // Clear automatic removal so it stays
+                if(ghost.removeTimer) clearTimeout(ghost.removeTimer);
+                
+                // Start Shaking
+                inner.classList.add('ghost-pressure-build');
+                
+                // 2. Wait 2.5 seconds for shake pressure (User requested slow build)
+                setTimeout(() => {
+                     inner.classList.remove('ghost-pressure-build');
+                     inner.classList.add('ghost-reward-pop');
+                     // Swap text
+                     inner.innerText = rewards[Math.floor(Math.random() * rewards.length)];
+                     inner.style.fontStyle = 'normal';
+                     inner.style.fontSize = '2rem';
+                     
+                     // FREEZE POSITION to avoid jump, then FLOAT
+                     const rect = ghost.getBoundingClientRect();
+                     ghost.style.animation = 'none'; // Stop drifting
+                     ghost.style.left = rect.left + 'px';
+                     ghost.style.top = rect.top + 'px';
+                     ghost.style.transform = 'none';
+                     // Force reflow
+                     void ghost.offsetWidth;
+                     // Apply permanent float
+                     ghost.classList.add('ghost-permanent-float');
+                     ghost.style.position = 'fixed'; // Move to fixed so it stays on screen relative to viewport
+                     ghost.style.zIndex = '10005'; // On top of everything
+                     
+                     // Large movement range CSS logic is applied via 'float-permanent-wide' keyframe now
+                     
+                }, 2500);
+            }
+        }
+        
+        function spawnRegret(isFinale = false) {
+            const panel = document.getElementById(isFinale ? 'grand-finale-overlay' : 'regret-panel');
+            // Create Wrapper for Drift
+            const el = document.createElement('div');
+            el.className = 'regret-ghost regret-ghost-wrapper'; // Wrapper class
+            
+            // Random Position logic
+            const top = 10 + Math.random() * 80;
+            const left = 5 + Math.random() * 70;
+            el.style.top = top + '%';
+            el.style.left = left + '%';
+            el.style.fontSize = (0.7 + Math.random() * 0.6) + 'rem';
+
+            const drifts = ['drift1', 'drift2', 'drift3', 'drift4'];
+            const anim = drifts[Math.floor(Math.random() * drifts.length)];
+            const duration = 12 + Math.random() * 8; 
+            el.style.animation = `${anim} ${duration}s ease-in-out forwards`;
+
+            // Create Inner Content for Shake/Text
+            const content = document.createElement('span');
+            content.className = 'regret-ghost-content';
+            content.innerText = regrets[Math.floor(Math.random() * regrets.length)];
+            
+            el.appendChild(content);
+            panel.appendChild(el);
+            
+            // Store timer so we can cancel it for explosions
+            el.removeTimer = setTimeout(() => { if(el.parentNode) el.remove(); }, duration * 1000);
+            
+            return el;
+        }
+
+        function showWarning(msg) {
+            document.getElementById('warning-msg').innerText = msg;
+            document.getElementById('warningModal').style.display = 'flex';
+        }
+
+        function sendFeedback() {
+            const text = document.getElementById('feedbackText').value;
+            if (text.trim() === "") { alert("Please enter some text."); return; }
+            if (text.match(/[@#/<>\\]/)) {
+                alert("Please remove special characters like @, #, <, > or /");
+                return;
+            }
+            const wordCount = text.trim().split(/\s+/).length;
+            if (wordCount > 500) { alert("Please limit feedback to 500 words."); return; }
+
+            navigator.clipboard.writeText(text).then(() => {
+                window.location.href = "mailto:john@realitiescentre.com?subject=No-vember Feedback&body=" + encodeURIComponent(text);
+            });
+        }
+        
+        function shareChallenge() {
+            const text = "I'm taking the No-vember Challenge! Join me in saying 'No thanks' to alcohol for a month of health and clarity. https://no-vember.com";
+            if (navigator.share) {
+                navigator.share({ title: 'No-vember Challenge', text: text, url: 'https://no-vember.com' }).catch(console.error);
+            } else {
+                navigator.clipboard.writeText(text).then(() => alert("Link copied to clipboard! Share it with a friend!"));
+            }
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {} 
+        }
+        
+        document.querySelectorAll('.calendar-day').forEach(d => {
+            d.onclick = () => unlockDay(d);
+        });
+        
+        // Setup Milestone Click Listeners
+        document.getElementById('milestone-1').onclick = () => clickMilestone(1, 2);
+        document.getElementById('milestone-2').onclick = () => clickMilestone(2, 3);
+        document.getElementById('milestone-3').onclick = () => clickMilestone(3, 4);
+        document.getElementById('milestone-4').onclick = () => clickMilestone(4, 5);
+
+    </script>
+</body>
+</html>
