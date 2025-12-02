@@ -1,33 +1,84 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Loading Content... All Rights Reserved</title>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SECURE LOADER All Rights Reserved</title>
+    <!-- 
+      We use custom CSS here to ensure the iframe fills the entire screen 
+      and there are no scrollbars or borders from the surrounding index.html document.
+    -->
+    <style>
+        /* Reset margins/paddings for full screen coverage */
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Hide outer scrollbar */
+            height: 100%;
+            width: 100%;
+            font-family: sans-serif;
+            background-color: #1f2937; /* Dark background */
+        }
+        /* Style for the loading box */
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #ffffff;
+            font-size: 1.5rem;
+        }
+        /* The iframe wrapper */
+        #contentFrame {
+            width: 100%;
+            height: 100%;
+            border: none; /* Removes the default iframe border */
+            display: none; /* Hidden until loaded */
+        }
+    </style>
 </head>
 <body>
-    <div id="content-container">Loading...</div>
-    <script>
-    // 1. Define the name of the file you want to load
-    const fileToLoad = 'no-vember-v2.98.html';
 
-    // 2. Fetch the file from the same repository folder
-    fetch(fileToLoad)
-        .then(response => {
-            // Check for errors (e.g., 404 Not Found)
-            if (!response.ok) {
-                throw new Error(`Failed to load ${fileToLoad}: ${response.statusText}`);
+    <div class="loading-container" id="loadingMessage">
+        Loading project content... Please wait.
+    </div>
+
+    <!-- 
+      The key element: The iframe loads your projectv1.html file directly. 
+      It runs in its own sandbox, preserving all its original functionality.
+    -->
+    <iframe 
+        id="contentFrame" 
+        src="novemberv298.html" 
+        title="Main Project Content"
+        onload="document.getElementById('loadingMessage').style.display = 'none'; this.style.display = 'block';">
+    </iframe>
+
+    <script>
+        // Simple fallback to handle cases where the content might fail to load (e.g., file renamed)
+        const frame = document.getElementById('contentFrame');
+        
+        // This checks if the iframe content loaded successfully after a short delay
+        setTimeout(() => {
+            try {
+                // Check if the iframe content is accessible (might fail due to cross-origin policies, 
+                // but should work fine in this same-origin scenario).
+                if (frame.contentDocument) {
+                    console.log("Iframe loaded content successfully.");
+                } else {
+                    throw new Error("Iframe content access denied or frame not fully loaded.");
+                }
+            } catch (e) {
+                // If the content is not working or fails, show an error message
+                document.getElementById('loadingMessage').innerHTML = `
+                    <div style="padding: 20px; background-color: #ef4444; border-radius: 8px;">
+                        ERROR: Could not load 'projectv1.html'. Check the file name and path.
+                    </div>`;
+                document.getElementById('loadingMessage').style.display = 'flex';
+                frame.style.display = 'none';
+                console.error("Loading error:", e);
             }
-            return response.text(); // Get the file content as plain text
-        })
-        .then(htmlContent => {
-            // 3. Inject the content into the container
-            document.getElementById('content-container').innerHTML = htmlContent;
-        })
-        .catch(err => {
-            console.error(err);
-            document.getElementById('content-container').innerHTML = 
-                `Error loading content. Check if the file name "${fileToLoad}" is correct.`;
-        });
+        }, 3000); // 3-second delay to check load status
     </script>
 </body>
 </html>
