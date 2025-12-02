@@ -1,2 +1,2 @@
 # no
-No-vember All Rights Reserved
+No-vember Please note All Rights Reserved
